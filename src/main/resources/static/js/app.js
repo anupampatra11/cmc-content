@@ -258,16 +258,18 @@ function scoreRing(score, label, size) {
     const band = scoreBand(score);
     return `
     <div class="score-ring-wrap">
-        <svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
-            <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#1E293B" stroke-width="${size*0.08}"/>
-            <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}"
-                stroke-width="${size*0.08}" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
-        </svg>
-        <div style="margin-top:${-(size*0.58+6)}px;display:flex;flex-direction:column;align-items:center;">
-            <span style="font-size:${size*0.26}px;font-weight:700;color:#F1F5F9;font-family:var(--mono)">${score}</span>
-            <span style="font-size:${size*0.1}px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:.08em">${band}</span>
+        <div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0;">
+            <svg width="${size}" height="${size}" style="transform:rotate(-90deg);display:block;">
+                <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#1E293B" stroke-width="${size*0.08}"/>
+                <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}"
+                    stroke-width="${size*0.08}" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                <span style="font-size:${Math.round(size*0.24)}px;font-weight:700;color:#F1F5F9;font-family:var(--mono);line-height:1">${score}</span>
+                <span style="font-size:${Math.round(size*0.095)}px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:.08em;line-height:1">${band}</span>
+            </div>
         </div>
-        <div class="score-ring-label" style="margin-top:${size*0.58+4}px">${label}</div>
+        <div class="score-ring-label" style="margin-top:8px">${label}</div>
     </div>`;
 }
 
