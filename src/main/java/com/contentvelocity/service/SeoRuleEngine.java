@@ -63,13 +63,14 @@ public class SeoRuleEngine {
 
         // 5. Image alt text
         boolean altsPass = page.imageCount == 0 || page.missingAltCount == 0;
-        checks.add(new AuditCheck("alts", "On-page", "Image alt text", altsPass,
-            page.imageCount == 0 ? "No images found on this page" :
+        String altsDetail = page.imageCount == 0 ? "No images found on this page" :
             page.missingAltCount == 0 ? "All " + page.imageCount + " images have alt text" :
-            page.missingAltCount + " of " + page.imageCount + " images missing alt text", 7)
+            page.missingAltCount + " of " + page.imageCount + " images missing alt text";
+        String altsCode = buildMissingAltCode(page);
+        checks.add(new AuditCheck("alts", "On-page", "Image alt text", altsPass, altsDetail, 7)
             .withFix(!altsPass,
-                "Add descriptive alt attributes to every <img> tag. Describe what is in the image specifically — avoid generic text like 'image' or 'photo'.",
-                "<!-- Before (missing alt) -->\n<img src=\"/gel-nimbus.jpg\" />\n\n<!-- After (descriptive alt) -->\n<img src=\"/gel-nimbus.jpg\" alt=\"ASICS Gel-Nimbus 25 men's road running shoe in blue and white\" />"));
+                "Add descriptive alt attributes to every <img> tag below. Describe what is in the image — avoid generic text like 'image' or 'photo'.",
+                altsCode));
 
         // 6. Word count
         boolean wordPass = page.wordCount >= 300;
@@ -147,6 +148,26 @@ public class SeoRuleEngine {
                 "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"What is the best ASICS shoe for beginners?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"The ASICS Gel-Nimbus is our top recommendation for beginners. It offers maximum cushioning and GEL technology that absorbs shock on road surfaces.\"\n      }\n    },\n    {\n      \"@type\": \"Question\",\n      \"name\": \"How do I find my correct running shoe size?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Measure your foot length in centimetres and add 1cm for toe clearance. Visit an ASICS store for a free gait analysis and professional fitting.\"\n      }\n    }\n  ]\n}\n</script>"));
 
         return checks;
+    }
+
+    private String buildMissingAltCode(PageData page) {
+        if (page.imagesWithMissingAlt == null || page.imagesWithMissingAlt.isEmpty()) {
+            return "<!-- No images with missing alt text found -->";
+        }
+        // Show up to 5 specific images
+        List<String> imgs = page.imagesWithMissingAlt.size() > 5
+            ? page.imagesWithMissingAlt.subList(0, 5) : page.imagesWithMissingAlt;
+        StringBuilder sb = new StringBuilder("<!-- Add alt text to these specific images -->\n\n");
+        for (String src : imgs) {
+            sb.append("<!-- Before -->\n");
+            sb.append("<img src=\"").append(src).append("\" />\n\n");
+            sb.append("<!-- After -->\n");
+            sb.append("<img src=\"").append(src).append("\" alt=\"Describe the image here\" />\n\n");
+        }
+        if (page.imagesWithMissingAlt.size() > 5) {
+            sb.append("<!-- ... and ").append(page.imagesWithMissingAlt.size() - 5).append(" more images -->");
+        }
+        return sb.toString().trim();
     }
 
     private String safe(String s) { return s == null ? "" : s; }

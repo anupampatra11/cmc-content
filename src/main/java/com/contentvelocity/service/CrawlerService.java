@@ -95,9 +95,15 @@ public class CrawlerService {
         // Images
         Elements images = doc.select("img");
         data.imageCount = images.size();
-        data.missingAltCount = (int) images.stream()
-                .filter(img -> img.attr("alt").trim().isEmpty())
-                .count();
+        data.imagesWithMissingAlt = new ArrayList<>();
+        for (Element img : images) {
+            if (img.attr("alt").trim().isEmpty()) {
+                String src = img.attr("abs:src");
+                if (src.isBlank()) src = img.attr("src");
+                if (!src.isBlank()) data.imagesWithMissingAlt.add(src);
+            }
+        }
+        data.missingAltCount = data.imagesWithMissingAlt.size();
 
         // Canonical
         Element canonical = doc.selectFirst("link[rel=canonical]");

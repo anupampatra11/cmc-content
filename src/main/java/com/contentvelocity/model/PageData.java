@@ -20,6 +20,7 @@ public class PageData {
     public String dateModified;
     public String bodyText;
     public String baseDomain;
+    public List<String> imagesWithMissingAlt;
 
     // geo-rules objective metrics
     public int validSchemaFields;
