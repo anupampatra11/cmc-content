@@ -2,6 +2,9 @@
 
 AI-powered SEO + GEO content audit tool built with Node.js and Express.
 
+# Code is deployed to render.com automatically with every change, below is the URL
+https://cmc-content.onrender.com/
+
 ## Prerequisites
 
 - Node.js 20+
