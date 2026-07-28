@@ -1,35 +1,39 @@
 # Content Velocity Scanner
 
-AI-powered SEO + GEO content audit tool built with Spring Boot.
+AI-powered SEO + GEO content audit tool built with Node.js and Express.
 
 ## Prerequisites
 
-- Java 17+
-- Maven 3.8+
+- Node.js 20+
 - An Anthropic API key (get one at https://console.anthropic.com)
 
 ## Setup
 
-### 1. Set your Anthropic API key
-
-**Option A — environment variable (recommended):**
-```bash
-export ANTHROPIC_API_KEY=sk-ant-your-key-here
-```
-
-**Option B — edit application.properties:**
-```
-anthropic.api.key=sk-ant-your-key-here
-```
-
-### 2. Run the application
+### 1. Install dependencies
 
 ```bash
-cd content-velocity
-mvn spring-boot:run
+npm install
 ```
 
-### 3. Open in browser
+### 2. Set your Anthropic API key
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and add your key:
+
+```
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+```
+
+### 3. Run the application
+
+```bash
+npm start
+```
+
+### 4. Open in browser
 
 ```
 http://localhost:8080
@@ -39,57 +43,57 @@ Paste any website URL, click **Scan site**, and watch the results come in.
 
 ---
 
+## Docker
+
+```bash
+docker build -t content-velocity .
+docker run -e ANTHROPIC_API_KEY=sk-ant-your-key-here -p 8080:8080 content-velocity
+```
+
+---
+
 ## How it works
 
 1. **Sitemap discovery** — fetches `/sitemap.xml` or `/sitemap_index.xml` to find all page URLs (max 20 pages per scan)
-2. **Page crawl** — uses Jsoup to fetch and parse each page's HTML
+2. **Page crawl** — uses Cheerio to fetch and parse each page's HTML
 3. **Deterministic rules** — 13 SEO/GEO checks run instantly (title, meta, H1, schema, canonical, etc.)
 4. **AI analysis** — calls Claude (claude-haiku) per page for GEO scoring: BLUF structure, tone, factual density, entity clarity, Q&A fit, and 3 specific improvement suggestions
 5. **Score calculation** — SEO score (0–100) + GEO score (0–100) → combined Content Velocity Score
 
 ---
 
-## Configuration (application.properties)
+## Configuration (.env)
 
-| Property | Default | Description |
+| Variable | Default | Description |
 |---|---|---|
-| `server.port` | 8080 | Server port |
-| `anthropic.api.key` | (required) | Your Anthropic API key |
-| `anthropic.model` | claude-haiku-4-5-20251001 | Model to use (haiku = fast + cheap) |
-| `scanner.max-pages` | 20 | Max pages to scan per site |
-| `scanner.connect-timeout-ms` | 10000 | HTTP connect timeout |
+| `PORT` | 8080 | Server port |
+| `ANTHROPIC_API_KEY` | (required) | Your Anthropic API key |
+| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Model to use |
+| `MAX_PAGES` | 20 | Max pages to scan per site |
+| `CONNECT_TIMEOUT_MS` | 10000 | HTTP connect timeout |
 
 ---
 
 ## Project structure
 
 ```
-src/main/java/com/contentvelocity/
-├── ContentVelocityApplication.java   — entry point
-├── config/
-│   └── AsyncConfig.java              — thread pool for async scanning
-├── controller/
-│   └── ScanController.java           — REST: POST /api/scan, GET /api/scan/{id}
-├── model/
-│   ├── ScanRequest.java
-│   ├── ScanResult.java
-│   ├── PageAudit.java
-│   ├── PageData.java
-│   ├── AuditCheck.java
-│   ├── PageScores.java
-│   └── AiScores.java
-└── service/
-    ├── SitemapService.java           — discovers URLs from sitemap.xml
-    ├── CrawlerService.java           — fetches + parses page HTML with Jsoup
-    ├── SeoRuleEngine.java            — 13 deterministic SEO/GEO checks
-    ├── ScoreCalculator.java          — computes SEO, GEO, combined scores
-    ├── AnthropicService.java         — calls Claude API for AI scoring
-    └── ScanOrchestrator.java         — async pipeline coordinator
+src/
+├── server.js                  — Express app entry point
+├── config.js                  — Environment-based configuration
+├── routes/
+│   └── scanRoutes.js          — REST: POST /api/scan, GET /api/scan/:id, GET /api/health
+└── services/
+    ├── scanOrchestrator.js    — Async scan pipeline coordinator
+    ├── sitemapService.js      — Discovers URLs from sitemap.xml
+    ├── crawlerService.js      — Fetches + parses page HTML with Cheerio
+    ├── seoRuleEngine.js       — 13 deterministic SEO/GEO checks
+    ├── scoreCalculator.js     — Computes SEO, GEO, and combined scores
+    └── anthropicService.js    — Calls Claude API for AI scoring
 
-src/main/resources/static/
-├── index.html                        — single-page UI
-├── css/style.css                     — all styles
-└── js/app.js                         — fetch, polling, DOM rendering
+public/
+├── index.html                 — Single-page UI
+├── css/style.css              — All styles
+└── js/app.js                  — Fetch, polling, DOM rendering
 ```
 
 ---
@@ -108,7 +112,7 @@ Content-Type: application/json
 
 ### Poll for results
 ```
-GET /api/scan/{scanId}
+GET /api/scan/:scanId
 
 → {
     "id": "abc123def456",
@@ -125,13 +129,20 @@ GET /api/scan/{scanId}
 
 Poll every 1–2 seconds until `status === "complete"`.
 
+### Health check
+```
+GET /api/health
+
+→ { "status": "ok", "service": "content-velocity-scanner" }
+```
+
 ---
 
-## Sprint 2 ideas (after demo)
+## Contributing
 
-- AEM connector — pull content via AEM Query Builder API, push suggestions back as workflow tasks
-- Bloomreach connector — Content Delivery API integration  
-- Scheduled recurring scans with score tracking over time
-- PDF export of the audit report
-- Before/after score comparison view
-- Content rewrite assistant — expand AI suggestions into full draft rewrites
+1. Fork the repo or request collaborator access
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes and push: `git push origin feature/your-feature`
+4. Open a Pull Request — the maintainer will review and merge
+
+---
