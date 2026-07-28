@@ -1,0 +1,19 @@
+{
+  "name": "content-velocity-scanner",
+  "version": "1.0.0",
+  "description": "AI-powered SEO and GEO content audit tool",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "uuid": "^11.1.1",
+    "xml2js": "^0.6.2"
+  }
+}
