@@ -44,11 +44,14 @@
             </p>
 
             <div class="scan-form">
-                <input type="text" name="website-tos-can" id="urlInput" class="url-input"
-                    placeholder="https://yourwebsite.com" autocomplete="off" spellcheck="false" />
-                <button class="scan-btn" id="scanBtn" onclick="startScan()">
-                    Scan site →
-                </button>
+                <label for="urlInput" class="url-label">Enter a website:</label>
+                <div class="scan-input-row">
+                    <input type="text" name="website-to-scan" id="urlInput" class="url-input"
+                        placeholder="https://yourwebsite.com" autocomplete="off" spellcheck="false" />
+                    <button class="scan-btn" id="scanBtn" onclick="startScan()">
+                        Scan site →
+                    </button>
+                </div>
             </div>
             <div id="inputError" class="input-error"></div>
 

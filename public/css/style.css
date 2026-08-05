@@ -95,7 +95,23 @@ body {
 .hero-sub { font-size: 16px; color: var(--text-3); line-height: 1.65; margin-bottom: 40px; }
 
 /* ── Scan form ────────────────────────────────────────────────────────────── */
-.scan-form { display: flex; gap: 10px; max-width: 560px; margin: 0 auto; }
+.scan-form { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    max-width: 560px; 
+    margin: 0 auto; 
+}
+.scan-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.url-label {
+    display: block;
+    text-align: left;
+}
+
 .url-input {
     flex: 1;
     background: var(--bg-3); border: 1px solid var(--border-2);

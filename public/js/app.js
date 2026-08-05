@@ -83,12 +83,10 @@ function updateProgress(data) {
 			? Math.round((data.scannedPages / data.totalPages) * 100)
 			: 5;
 	document.getElementById("progressBar").style.width = pct + "%";
+	const progressGrammarPages = data.scannedPages !== 1 ? " pages " : " page ";
 	document.getElementById("progressCount").textContent =
 		data.scannedPages > 0
-			? data.scannedPages +
-			" page" +
-			(data.scannedPages !== 1 ? "s" : "") +
-			" scanned"
+			? data.scannedPages + progressGrammarPages + "scanned"
 			: "";
 
 	// Stream pages in as they complete
@@ -110,8 +108,9 @@ function showResults(data) {
 		document.getElementById("summaryDomain").textContent = data.targetUrl;
 	}
 
+	const grammarPages = allPages.length !== 1 ? " pages " : " page ";
 	document.getElementById("summaryCount").textContent =
-		allPages.length + " page" + (allPages.length !== 1 ? "s" : "") + " scanned";
+		allPages.length + " page" + grammarPages + "scanned";
 
 	updateAverages(data);
 	renderPageList();
@@ -326,7 +325,15 @@ function checkRow(check, passing) {
 
 	const uid = check.id + "-" + Math.random().toString(36).slice(2, 7);
 	const hasFix = !passing && check.howToFix;
-
+	
+	const checkCodeExample = check.codeExample
+		? `
+		<div class="fix-code-wrap">
+			<pre class="fix-code" id="code-${uid}">${esc(check.codeExample)}</pre>
+			<button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
+		</div>`
+		: "";
+	
 	const fixDrawer = hasFix
 		? `
         <button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
@@ -337,14 +344,7 @@ function checkRow(check, passing) {
                 <strong>What to do</strong>
                 ${esc(check.howToFix)}
             </div>
-            ${check.codeExample
-			? `
-            <div class="fix-code-wrap">
-                <pre class="fix-code" id="code-${uid}">${esc(check.codeExample)}</pre>
-                <button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
-            </div>`
-			: ""
-		}
+            ${checkCodeExample}
         </div>`
 		: "";
 
@@ -422,10 +422,10 @@ function hasAiSignals(ai) {
 function esc(str) {
 	if (!str) return "";
 	return String(str)
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
+		.replaceAll('&', "&amp;")
+		.replaceAll('<', "&lt;")
+		.replaceAll('>', "&gt;")
+		.replaceAll('"', "&quot;");
 }
 function showSection(id) {
 	["hero", "progressSection", "resultsSection"].forEach((s) => {
@@ -465,7 +465,6 @@ function toggleFix(id) {
 	const isOpen = drawer.classList.contains("open");
 	drawer.classList.toggle("open", !isOpen);
 	toggle.classList.toggle("open", !isOpen);
-	toggle.querySelector(".arrow").textContent = isOpen ? "▶" : "▶";
 }
 
 // ── Copy code to clipboard ────────────────────────────────────────────────────
