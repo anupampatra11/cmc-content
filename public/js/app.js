@@ -482,3 +482,107 @@ function copyCode(id) {
 		}, 2000);
 	});
 }
+
+// ── Download the data as a PDF ────────────────────────────────────────────────
+function downloadPdf() {
+	const { jsPDF } = window.jspdf;
+
+	const pdf = new jsPDF({unit: "px"});
+	const x = 40;
+	let y = 50;
+
+	pdf.setFont("helvetica", "normal");
+	pdf.setCharSpace(0);
+
+	// Title
+	pdf.setFontSize(FontSizesPDF.title);
+	pdf.text('Content Velocity Scan Report', x, y);
+	y += LineBreakPDF.section
+
+	// Scanned website and how many pages were scanned
+	pdf.setFontSize(FontSizesPDF.mediumText);
+	y += FontSizesPDF.mediumText;
+	pdf.text(
+		`Domain: ${document.getElementById('summaryDomain')?.textContent || ''}`,
+		x,
+		y
+	);
+	
+	y += FontSizesPDF.mediumText;
+	pdf.text(
+		`Pages scanned: ${document.getElementById('summaryCount')?.textContent || ''}`,
+		x,
+		y
+	);
+	
+	y += LineBreakPDF.section
+
+	// Average scores
+	pdf.setFontSize(FontSizesPDF.largeText);
+	y += FontSizesPDF.largeText;
+	pdf.text(
+		`Average SEO: ${document.getElementById('avgSeo')?.textContent || '-'}`,
+		x,
+		y
+	);
+	
+	y += FontSizesPDF.largeText;
+	pdf.text(
+		`Average GEO: ${document.getElementById('avgGeo')?.textContent || '-'}`,
+		x,
+		y
+	);
+
+	y += FontSizesPDF.largeText;
+	pdf.text(
+		`Velocity Score: ${document.getElementById('avgCombined')?.textContent || '-'}`,
+		x,
+		y
+	);
+
+	y += LineBreakPDF.section
+
+	// Results
+	pdf.setFontSize(FontSizesPDF.header);
+	y += FontSizesPDF.header;
+	pdf.text('Page Results', x, y);
+	y += LineBreakPDF.text;
+
+	pdf.setFontSize(FontSizesPDF.smallText);
+	y += FontSizesPDF.smallText;
+	for (const page of allPages) {
+		if (y > 590) {
+			console.log("too large:", y)
+			pdf.addPage();
+			y = 50;
+		}
+
+		const pageDesc = (page.title ?? page.url)
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '');
+		
+		const score = page.scores?.combined ?? 0;
+		const text = `${pageDesc} | Score: ${score}`;
+
+		const lines = pdf.splitTextToSize(text, 2200);
+
+		pdf.text(lines, x, y);
+
+		y += lines.length * FontSizesPDF.smallText;
+	}
+
+	pdf.save("Content-velocity-scanner_Report.pdf")
+}
+
+const LineBreakPDF = {
+	section: 12,
+	text: 6
+}
+
+const FontSizesPDF = {
+	title: 20,
+	header: 16,
+	largeText: 14,
+	mediumText: 12,
+	smallText: 11
+}
