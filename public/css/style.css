@@ -440,3 +440,26 @@ body {
 }
 .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
 .copy-btn.copied { background: #22C55E; color: white; border-color: #22C55E; }
+
+/* download button */
+.download-btn {
+    background: transparent;
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    color: var(--text-3);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font);
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.download-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-1);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.download-btn:active {
+    transform: translateY(1px);
+}
