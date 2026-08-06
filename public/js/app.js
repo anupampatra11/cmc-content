@@ -563,7 +563,7 @@ function downloadPdf() {
 		const score = page.scores?.combined ?? 0;
 		const text = `${pageDesc} | Score: ${score}`;
 
-		const lines = pdf.splitTextToSize(text, 2200);
+		const lines = pdf.splitTextToSize(text, 360);
 
 		pdf.text(lines, x, y);
 
