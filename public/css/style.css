@@ -259,6 +259,37 @@ body {
 
 /* Score ring SVG */
 .score-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.score-ring-visual {
+    position: relative;
+    flex-shrink:0;
+}
+.score-ring-circle {
+    transform: rotate(-90deg);
+    display: block;
+}
+.score-ring-inner-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1;
+
+    .score-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #F1F5F9;
+        font-family: var(--mono);
+    }
+    .score-text {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+}
 .score-ring-label { font-size: 11px; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
 
 /* GEO summary */
