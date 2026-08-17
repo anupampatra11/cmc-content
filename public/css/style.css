@@ -418,7 +418,7 @@ body {
     align-items: center;
     gap: 10px;
     border-left: 3px solid transparent;
-    transition: background 0.12s;
+    transition: background-color 0.12s;
 }
 .page-item:hover {
     background: var(--bg-4);
@@ -671,7 +671,7 @@ body {
     padding: 10px 16px;
     border-bottom: 1px solid #0a1628;
     align-items: flex-start;
-    transition: background 0.1s;
+    transition: background-color 0.1s;
 }
 .check-row:hover {
     background: var(--bg-3);
@@ -939,27 +939,56 @@ body {
 }
 
 /* download button */
-.download-btn {
-    background: transparent;
-    border: 1px solid var(--border-2);
-    border-radius: var(--radius);
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown button {
     padding: 10px 16px;
     color: var(--text-3);
-    cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-family: var(--font);
-    transition:
-        border-color 0.2s,
-        color 0.2s,
-        background 0.2s;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: 
+        border-color 0.2s, 
+        color 0.2s, 
+        background-color 0.2s;
 }
 
-.download-btn:hover {
-    border-color: var(--accent);
+.dropdown button:hover,
+.dropdown button:focus {
     color: var(--text-1);
-    background: rgba(99, 102, 241, 0.08);
+    background-color: rgba(99, 102, 241, 0.08);
+    border-color: var(--accent);
 }
 
-.download-btn:active {
-    transform: translateY(1px);
+.dropdown-btn {
+    background: transparent;
+    border: 1px solid var(--border-2);
+}
+
+.download-btn {
+    display: block;
+    background: var(--bg);
+    border: none;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    flex-direction: column;
+    width: 100%;
+    overflow: auto;
+    z-index: 1;
+    background-color: var(--bg);
+    border: 1px solid var(--border-2);
+    border-top: none;
+    border-color: var(--accent);
+    border-radius: 0px 0px var(--radius) var(--radius);
+}
+
+.show-dropdown-options {
+    display: flex;
 }

@@ -102,8 +102,13 @@
                         <div class="avg-num" id="avgCombined">—</div>
                         <div class="avg-label">Velocity</div>
                     </div>
-                    <button class="download-btn" onclick="downloadPdf()">Download PDF</button>
-                    <button class="download-btn" onclick="downloadCSV()">Download CSV</button>
+                    <div class="dropdown">
+                        <button onclick="myFunction()" class="dropdown-btn">Download report</button>
+                        <div id="dropdown-download" class="dropdown-content">
+                            <button class="download-btn" onclick="downloadPdf()">Download PDF</button>
+                            <button class="download-btn" onclick="downloadCSV()">Download CSV</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

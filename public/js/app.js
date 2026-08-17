@@ -483,6 +483,25 @@ function copyCode(id) {
 	});
 }
 
+// ── Handle dropdown report download ───────────────────────────────────────────
+/* When the user clicks on the button, toggle between hiding and showing the dropdown content */
+function myFunction() {
+	document.getElementById("dropdown-download").classList.toggle("show-dropdown-options");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function (event) {
+	if (!event.target.matches('.dropdown-btn')) {
+		const dropdowns = document.getElementsByClassName("dropdown-content");
+		for (const element of dropdowns) {
+			let openDropdown = element;
+			if (openDropdown.classList.contains("show-dropdown-options")) {
+				openDropdown.classList.remove("show-dropdown-options");
+			}
+		}
+	}
+}
+
 // ── Download the data as a PDF ────────────────────────────────────────────────
 function downloadPdf() {
 	const { jsPDF } = window.jspdf;
