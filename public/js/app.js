@@ -485,7 +485,7 @@ function copyCode(id) {
 
 // ── Handle dropdown report download ───────────────────────────────────────────
 /* When the user clicks on the button, toggle between hiding and showing the dropdown content */
-function myFunction() {
+function openDropdown() {
 	document.getElementById("dropdown-download").classList.toggle("show-dropdown-options");
 }
 
