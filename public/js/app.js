@@ -473,7 +473,7 @@ function downloadPdf() {
 	const { jsPDF } = window.jspdf;
 
 	const pdf = new jsPDF({unit: "px"});
-	const x = 40;
+	let x = 40;
 	let y = 50;
 
 	pdf.setFont("helvetica", "normal");
@@ -594,6 +594,40 @@ function downloadPdf() {
 		);
 		
 		y += LineBreakPDF.section;
+
+		// Issues to fix
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+		pdf.text("Issues to fix", x, y)
+		y += FontSizesPDF.mediumText;
+
+		const failed = page.checks
+			.filter((c) => !c.pass)
+			.sort((a, b) => (b.weight) - (a.weight),
+		);
+		const passed = page.checks.filter((c) => c.pass);
+		
+		failed.map((check) => {
+			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			pdf.text(check.label, x, y);
+
+			// Description with suggestion on what/how to fix the issue
+			pdf.setFontSize(FontSizesPDF.smallText).setFont(undefined, 'normal');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			const fixDesc = pdf.splitTextToSize(check.howToFix, 360);
+			pdf.text(fixDesc, x, y);
+			y = increaseCoordinate(y, fixDesc.length * FontSizesPDF.smallText, pdf)
+
+			// Show the code example if present
+			if (check.codeExample){
+			 	x += LineBreakPDF.section;
+				const codeSnippet = pdf.splitTextToSize(check.codeExample, 360 - LineBreakPDF.section);
+				pdf.text(codeSnippet, x, y);
+				y = increaseCoordinate(y, codeSnippet.length * 10, pdf)
+				x -= LineBreakPDF.section;
+			}
+		})
 	}
 
 	pdf.save("Content-velocity-scanner_Report.pdf")
@@ -610,6 +644,16 @@ const FontSizesPDF = {
 	largeText: 14,
 	mediumText: 12,
 	smallText: 11
+}
+
+const increaseCoordinate = (current, spaceToAdd, pdf) => {
+	const possibleCoordinate = current + spaceToAdd;
+	if (possibleCoordinate > 590){
+		pdf.addPage();
+		return 50;
+	}
+	else
+		return possibleCoordinate;
 }
 
 // ── Download the data as a CSV ────────────────────────────────────────────────
