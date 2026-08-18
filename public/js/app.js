@@ -170,31 +170,8 @@ function selectPage(idx) {
 		);
 	});
 	// Simpler: re-render list to set active
-	renderPageListWithActive(idx);
+	renderPageList();
 	renderDetail(allPages[idx]);
-}
-
-function renderPageListWithActive(activeIdx) {
-	const list = document.getElementById("pageList");
-	list.innerHTML = "";
-	const sorted = [...allPages].sort(
-		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
-	);
-	sorted.forEach((page) => {
-		const origIdx = allPages.indexOf(page);
-		const score = page.scores?.combined ?? "?";
-		const div = document.createElement("div");
-		div.className = "page-item" + (origIdx === activeIdx ? " active" : "");
-		div.onclick = () => selectPage(origIdx);
-		div.innerHTML = `
-            <div class="page-item-info">
-                <div class="page-item-title">${esc(page.title || page.slug || page.url)}</div>
-                <div class="page-item-path">${esc(page.slug || "/")}</div>
-            </div>
-            <div class="page-item-score ${scoreClass(score)}">${score}</div>
-        `;
-		list.appendChild(div);
-	});
 }
 
 function renderDetail(page) {
