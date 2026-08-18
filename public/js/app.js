@@ -502,7 +502,7 @@ function downloadPdf() {
 	
 	y += LineBreakPDF.section
 
-	// Average scores
+	// Average scores - all pages
 	pdf.setFontSize(FontSizesPDF.largeText);
 	y += FontSizesPDF.largeText;
 	pdf.text(
@@ -527,7 +527,7 @@ function downloadPdf() {
 
 	y += LineBreakPDF.section
 
-	// Results
+	// Results overview - all pages
 	pdf.setFontSize(FontSizesPDF.header);
 	y += FontSizesPDF.header;
 	pdf.text('Page Results', x, y);
@@ -537,7 +537,6 @@ function downloadPdf() {
 	y += FontSizesPDF.smallText;
 	for (const page of allPages) {
 		if (y > 590) {
-			console.log("too large:", y)
 			pdf.addPage();
 			y = 50;
 		}
