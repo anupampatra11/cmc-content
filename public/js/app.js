@@ -555,8 +555,45 @@ function downloadPdf() {
 		y += FontSizesPDF.smallText;
 	}
 
+	// Individual pages with more details
+	for (const page of allPages){
+		pdf.addPage();
+		y = 50;
 
+		// Header with the name of the analysed page
+		pdf.setFontSize(FontSizesPDF.header)
+		const pageDesc = (page.title ?? page.url)
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '');
+		const pageName = pdf.splitTextToSize(pageDesc, 360);
+		pdf.text(pageName, x, y)
+		y += pageName.length * FontSizesPDF.smallText;
 
+		// Page scores
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+
+		pdf.text(
+			`SEO: ${page.scores.seo || '-'}`,
+			x,
+			y
+		);
+		
+		y += FontSizesPDF.largeText;
+		pdf.text(
+			`GEO: ${page.scores.geo || '-'}`,
+			x,
+			y
+		);
+
+		y += FontSizesPDF.largeText;
+		pdf.text(
+			`Velocity: ${page.scores.combined || '-'}`,
+			x,
+			y
+		);
+		
+		y += LineBreakPDF.section;
 	}
 
 	pdf.save("Content-velocity-scanner_Report.pdf")
