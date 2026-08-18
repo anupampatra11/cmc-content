@@ -40,7 +40,6 @@ async function startScan() {
 			return;
 		}
 		currentScanId = data.scanId;
-		allPages = [];
 		startPolling();
 	} catch (e) {
 		showError("Could not reach the server. Is Spring running on port 8080?");
@@ -91,14 +90,13 @@ function updateProgress(data) {
 
 	// Stream pages in as they complete
 	if (data.pages && data.pages.length > allPages.length) {
-		allPages = data.pages;
+		allPages = data.pages || [];
 		updateAverages(data);
 	}
 }
 
 // ── Show results ──────────────────────────────────────────────────────────────
 function showResults(data) {
-	allPages = data.pages || [];
 	showSection("resultsSection");
 
 	try {
