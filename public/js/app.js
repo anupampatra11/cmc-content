@@ -3,6 +3,7 @@ let currentScanId = null;
 let pollInterval = null;
 let selectedPage = null;
 let allPages = [];
+let sortedPages = [];
 
 // ── Scan kick-off ─────────────────────────────────────────────────────────────
 async function startScan() {
@@ -111,8 +112,16 @@ function showResults(data) {
 		allPages.length + " page" + grammarPages + "scanned";
 
 	updateAverages(data);
+
+	// Sort the pages from highest to lowest ranked
+	sortedPages = [...allPages].sort(
+		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
+	);
 	renderPageList();
-	if (allPages.length > 0) selectPage(0);
+
+	const indexHighestRankedPage = allPages.indexOf(sortedPages[0])
+	if (allPages.length > 0) 
+		selectPage(indexHighestRankedPage);
 }
 
 function updateAverages(data) {
@@ -132,11 +141,8 @@ function setAvg(id, val) {
 function renderPageList() {
 	const list = document.getElementById("pageList");
 	list.innerHTML = "";
-	const sorted = [...allPages].sort(
-		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
-	);
 
-	sorted.forEach((page, i) => {
+	sortedPages.forEach((page) => {
 		const origIdx = allPages.indexOf(page);
 		const score = page.scores?.combined ?? "?";
 		const div = document.createElement("div");
@@ -182,7 +188,12 @@ function renderDetail(page) {
 	const scores = page.scores || { seo: 0, geo: 0, combined: 0 };
 	const ai = page.aiScores || {};
 	const checks = page.checks || [];
-	const failed = checks.filter((c) => !c.pass);
+
+	// Failed checks are sorted based on severity - worse first
+	const failed = checks
+		.filter((c) => !c.pass)
+		.sort((a, b) => (b.weight) - (a.weight),
+	);
 	const passed = checks.filter((c) => c.pass);
 
 	wrap.innerHTML = `
