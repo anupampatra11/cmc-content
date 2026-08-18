@@ -544,15 +544,19 @@ function downloadPdf() {
 		const pageDesc = (page.title ?? page.url)
 			.normalize('NFD')
 			.replace(/[\u0300-\u036f]/g, '');
+		const pageName = pdf.splitTextToSize(pageDesc, 360);
+		pdf.text(pageName, x, y)
+
+		y += pageName.length * FontSizesPDF.smallText;
+
+		const score = `    Score: ${page.scores?.combined ?? 0}`;
+		pdf.text(score, x, y)
 		
-		const score = page.scores?.combined ?? 0;
-		const text = `${pageDesc} | Score: ${score}`;
+		y += FontSizesPDF.smallText;
+	}
 
-		const lines = pdf.splitTextToSize(text, 360);
 
-		pdf.text(lines, x, y);
 
-		y += lines.length * FontSizesPDF.smallText;
 	}
 
 	pdf.save("Content-velocity-scanner_Report.pdf")
