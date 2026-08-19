@@ -599,14 +599,11 @@ function downloadPdf() {
 		pdf.setFontSize(FontSizesPDF.largeText);
 		y += FontSizesPDF.largeText;
 		pdf.text("Issues to fix", x, y)
-		y += FontSizesPDF.mediumText;
 
 		const failed = page.checks
 			.filter((c) => !c.pass)
 			.sort((a, b) => (b.weight) - (a.weight),
 		);
-		const passed = page.checks.filter((c) => c.pass);
-		
 		failed.map((check) => {
 			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
 			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
@@ -627,6 +624,25 @@ function downloadPdf() {
 				y = increaseCoordinate(y, codeSnippet.length * 10, pdf)
 				x -= LineBreakPDF.section;
 			}
+		})
+
+		// Passed checks
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+		pdf.text("Passed checks", x, y)
+
+		const passed = page.checks.filter((c) => c.pass);
+		passed.map((check) => {
+			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			pdf.text(check.label, x, y);
+
+			// Description with findings which made the check pass
+			pdf.setFontSize(FontSizesPDF.smallText).setFont(undefined, 'normal');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			const passDetail = pdf.splitTextToSize(check.detail, 360);
+			pdf.text(passDetail, x, y);
+			y = increaseCoordinate(y, passDetail.length * FontSizesPDF.smallText, pdf)
 		})
 	}
 
