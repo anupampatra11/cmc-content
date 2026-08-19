@@ -218,8 +218,8 @@ function renderDetail(page) {
             <div class="page-detail-title">${esc(page.title || page.url)}</div>
             <div class="page-detail-url">${esc(page.url)}</div>
             <div class="score-rings">
-                ${scoreRing(scores.seo, "SEO Score", 108)}
-                ${scoreRing(scores.geo, "GEO Score", 108)}
+                ${scoreRing(scores.seo, "SEO Score", 128)}
+                ${scoreRing(scores.geo, "GEO Score", 128)}
                 ${scoreRing(scores.combined, "Velocity Score", 128)}
             </div>
             ${ai.geoSummary
@@ -296,25 +296,26 @@ function renderDetail(page) {
 
 // ── HTML helpers ──────────────────────────────────────────────────────────────
 function scoreRing(score, label, size) {
-	const r = size * 0.38;
-	const circ = 2 * Math.PI * r;
-	const dash = (Math.min(100, score) / 100) * circ;
-	const col = scoreColor(score);
+	const radius = size * 0.38;
+	const circle = 2 * Math.PI * radius;
+	const dash = (Math.min(100, score) / 100) * circle;
+	const color = scoreColor(score);
 	const band = scoreBand(score);
+	
 	return `
     <div class="score-ring-wrap">
-        <div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0;">
-            <svg width="${size}" height="${size}" style="transform:rotate(-90deg);display:block;">
-                <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#1E293B" stroke-width="${size * 0.08}"/>
-                <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${col}"
-                    stroke-width="${size * 0.08}" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
+        <div class="score-ring-visual" width=${size} height=${size}>
+            <svg width="${size}" height="${size}">
+                <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="#1E293B" stroke-width="${size * 0.08}"/>
+                <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="${color}"
+                    stroke-width="${size * 0.08}" stroke-dasharray="${dash} ${circle}" stroke-linecap="round"/>
             </svg>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
-                <span style="font-size:${Math.round(size * 0.24)}px;font-weight:700;color:#F1F5F9;font-family:var(--mono);line-height:1">${score}</span>
-                <span style="font-size:${Math.round(size * 0.095)}px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:.08em;line-height:1">${band}</span>
+            <div class="score-ring-inner-text">
+                <span class="score-number">${score}</span>
+                <span class="score-text" style="color:${color}">${band}</span>
             </div>
         </div>
-        <div class="score-ring-label" style="margin-top:8px">${label}</div>
+        <div class="score-ring-label" >${label}</div>
     </div>`;
 }
 
@@ -480,6 +481,25 @@ function copyCode(id) {
 			btn.classList.remove("copied");
 		}, 2000);
 	});
+}
+
+// ── Handle dropdown report download ───────────────────────────────────────────
+/* When the user clicks on the button, toggle between hiding and showing the dropdown content */
+function openDropdown() {
+	document.getElementById("dropdown-download").classList.toggle("show-dropdown-options");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function (event) {
+	if (!event.target.matches('.dropdown-btn')) {
+		const dropdowns = document.getElementsByClassName("dropdown-content");
+		for (const element of dropdowns) {
+			let openDropdown = element;
+			if (openDropdown.classList.contains("show-dropdown-options")) {
+				openDropdown.classList.remove("show-dropdown-options");
+			}
+		}
+	}
 }
 
 // ── Download the data as a PDF ────────────────────────────────────────────────
@@ -664,7 +684,7 @@ function escapeCSVValue(value) {
     stringValue.includes('"') ||
     stringValue.includes("\n")
   ) {
-    return `"${stringValue.replace(/"/g, '""')}"`;
+    return `"${stringValue.replaceAll('"', '""')}"`;
   }
 
   return stringValue;
