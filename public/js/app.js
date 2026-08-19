@@ -3,6 +3,7 @@ let currentScanId = null;
 let pollInterval = null;
 let selectedPage = null;
 let allPages = [];
+let sortedPages = [];
 
 // ── Scan kick-off ─────────────────────────────────────────────────────────────
 async function startScan() {
@@ -40,7 +41,6 @@ async function startScan() {
 			return;
 		}
 		currentScanId = data.scanId;
-		allPages = [];
 		startPolling();
 	} catch (e) {
 		showError("Could not reach the server. Is Spring running on port 8080?");
@@ -91,14 +91,13 @@ function updateProgress(data) {
 
 	// Stream pages in as they complete
 	if (data.pages && data.pages.length > allPages.length) {
-		allPages = data.pages;
+		allPages = data.pages || [];
 		updateAverages(data);
 	}
 }
 
 // ── Show results ──────────────────────────────────────────────────────────────
 function showResults(data) {
-	allPages = data.pages || [];
 	showSection("resultsSection");
 
 	try {
@@ -113,8 +112,16 @@ function showResults(data) {
 		allPages.length + " page" + grammarPages + "scanned";
 
 	updateAverages(data);
+
+	// Sort the pages from highest to lowest ranked
+	sortedPages = [...allPages].sort(
+		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
+	);
 	renderPageList();
-	if (allPages.length > 0) selectPage(0);
+
+	const indexHighestRankedPage = allPages.indexOf(sortedPages[0])
+	if (allPages.length > 0) 
+		selectPage(indexHighestRankedPage);
 }
 
 function updateAverages(data) {
@@ -134,11 +141,8 @@ function setAvg(id, val) {
 function renderPageList() {
 	const list = document.getElementById("pageList");
 	list.innerHTML = "";
-	const sorted = [...allPages].sort(
-		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
-	);
 
-	sorted.forEach((page, i) => {
+	sortedPages.forEach((page) => {
 		const origIdx = allPages.indexOf(page);
 		const score = page.scores?.combined ?? "?";
 		const div = document.createElement("div");
@@ -170,31 +174,8 @@ function selectPage(idx) {
 		);
 	});
 	// Simpler: re-render list to set active
-	renderPageListWithActive(idx);
+	renderPageList();
 	renderDetail(allPages[idx]);
-}
-
-function renderPageListWithActive(activeIdx) {
-	const list = document.getElementById("pageList");
-	list.innerHTML = "";
-	const sorted = [...allPages].sort(
-		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
-	);
-	sorted.forEach((page) => {
-		const origIdx = allPages.indexOf(page);
-		const score = page.scores?.combined ?? "?";
-		const div = document.createElement("div");
-		div.className = "page-item" + (origIdx === activeIdx ? " active" : "");
-		div.onclick = () => selectPage(origIdx);
-		div.innerHTML = `
-            <div class="page-item-info">
-                <div class="page-item-title">${esc(page.title || page.slug || page.url)}</div>
-                <div class="page-item-path">${esc(page.slug || "/")}</div>
-            </div>
-            <div class="page-item-score ${scoreClass(score)}">${score}</div>
-        `;
-		list.appendChild(div);
-	});
 }
 
 function renderDetail(page) {
@@ -207,7 +188,12 @@ function renderDetail(page) {
 	const scores = page.scores || { seo: 0, geo: 0, combined: 0 };
 	const ai = page.aiScores || {};
 	const checks = page.checks || [];
-	const failed = checks.filter((c) => !c.pass);
+
+	// Failed checks are sorted based on severity - worse first
+	const failed = checks
+		.filter((c) => !c.pass)
+		.sort((a, b) => (b.weight) - (a.weight),
+	);
 	const passed = checks.filter((c) => c.pass);
 
 	wrap.innerHTML = `
@@ -507,7 +493,7 @@ function downloadPdf() {
 	const { jsPDF } = window.jspdf;
 
 	const pdf = new jsPDF({unit: "px"});
-	const x = 40;
+	let x = 40;
 	let y = 50;
 
 	pdf.setFont("helvetica", "normal");
@@ -536,7 +522,7 @@ function downloadPdf() {
 	
 	y += LineBreakPDF.section
 
-	// Average scores
+	// Average scores - all pages
 	pdf.setFontSize(FontSizesPDF.largeText);
 	y += FontSizesPDF.largeText;
 	pdf.text(
@@ -561,7 +547,7 @@ function downloadPdf() {
 
 	y += LineBreakPDF.section
 
-	// Results
+	// Results overview - all pages
 	pdf.setFontSize(FontSizesPDF.header);
 	y += FontSizesPDF.header;
 	pdf.text('Page Results', x, y);
@@ -571,7 +557,6 @@ function downloadPdf() {
 	y += FontSizesPDF.smallText;
 	for (const page of allPages) {
 		if (y > 590) {
-			console.log("too large:", y)
 			pdf.addPage();
 			y = 50;
 		}
@@ -579,15 +564,106 @@ function downloadPdf() {
 		const pageDesc = (page.title ?? page.url)
 			.normalize('NFD')
 			.replace(/[\u0300-\u036f]/g, '');
+		const pageName = pdf.splitTextToSize(pageDesc, 360);
+		pdf.text(pageName, x, y)
+
+		y += pageName.length * FontSizesPDF.smallText;
+
+		const score = `    Score: ${page.scores?.combined ?? 0}`;
+		pdf.text(score, x, y)
 		
-		const score = page.scores?.combined ?? 0;
-		const text = `${pageDesc} | Score: ${score}`;
+		y += FontSizesPDF.smallText;
+	}
 
-		const lines = pdf.splitTextToSize(text, 360);
+	// Individual pages with more details
+	for (const page of allPages){
+		pdf.addPage();
+		y = 50;
 
-		pdf.text(lines, x, y);
+		// Header with the name of the analysed page
+		pdf.setFontSize(FontSizesPDF.header)
+		const pageDesc = (page.title ?? page.url)
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '');
+		const pageName = pdf.splitTextToSize(pageDesc, 360);
+		pdf.text(pageName, x, y)
+		y += pageName.length * FontSizesPDF.smallText;
 
-		y += lines.length * FontSizesPDF.smallText;
+		// Page scores
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+
+		pdf.text(
+			`SEO: ${page.scores.seo || '-'}`,
+			x,
+			y
+		);
+		
+		y += FontSizesPDF.largeText;
+		pdf.text(
+			`GEO: ${page.scores.geo || '-'}`,
+			x,
+			y
+		);
+
+		y += FontSizesPDF.largeText;
+		pdf.text(
+			`Velocity: ${page.scores.combined || '-'}`,
+			x,
+			y
+		);
+		
+		y += LineBreakPDF.section;
+
+		// Issues to fix
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+		pdf.text("Issues to fix", x, y)
+
+		const failed = page.checks
+			.filter((c) => !c.pass)
+			.sort((a, b) => (b.weight) - (a.weight),
+		);
+		failed.map((check) => {
+			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			pdf.text(check.label, x, y);
+
+			// Description with suggestion on what/how to fix the issue
+			pdf.setFontSize(FontSizesPDF.smallText).setFont(undefined, 'normal');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			const fixDesc = pdf.splitTextToSize(check.howToFix, 360);
+			pdf.text(fixDesc, x, y);
+			y = increaseCoordinate(y, fixDesc.length * FontSizesPDF.smallText, pdf)
+
+			// Show the code example if present
+			if (check.codeExample){
+			 	x += LineBreakPDF.section;
+				const codeSnippet = pdf.splitTextToSize(check.codeExample, 360 - LineBreakPDF.section);
+				pdf.text(codeSnippet, x, y);
+				y = increaseCoordinate(y, codeSnippet.length * 10, pdf)
+				x -= LineBreakPDF.section;
+			}
+		})
+
+		// Passed checks
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+		pdf.text("Passed checks", x, y)
+
+		const passed = page.checks.filter((c) => c.pass);
+		passed.map((check) => {
+			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			pdf.text(check.label, x, y);
+
+			// Description with findings which made the check pass
+			pdf.setFontSize(FontSizesPDF.smallText).setFont(undefined, 'normal');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			const passDetail = pdf.splitTextToSize(check.detail, 360);
+			pdf.text(passDetail, x, y);
+			y = increaseCoordinate(y, passDetail.length * FontSizesPDF.smallText, pdf)
+		})
 	}
 
 	pdf.save("Content-velocity-scanner_Report.pdf")
@@ -604,6 +680,16 @@ const FontSizesPDF = {
 	largeText: 14,
 	mediumText: 12,
 	smallText: 11
+}
+
+const increaseCoordinate = (current, spaceToAdd, pdf) => {
+	const possibleCoordinate = current + spaceToAdd;
+	if (possibleCoordinate > 590){
+		pdf.addPage();
+		return 50;
+	}
+	else
+		return possibleCoordinate;
 }
 
 // ── Download the data as a CSV ────────────────────────────────────────────────
