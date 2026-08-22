@@ -13,9 +13,9 @@ const systemPrompt = (() => {
   }
 })();
 
-function buildPrompt(page) {
+function buildUserMessage(page) {
   const safe = s => s || '';
-  return systemPrompt + '\n\n---\nINPUT CONTENT:\n\n' +
+  return 'INPUT CONTENT:\n\n' +
     `URL: ${page.url}\n` +
     `Title: ${safe(page.title)}\n` +
     `Meta description: ${safe(page.metaDescription) || 'MISSING'}\n` +
@@ -25,29 +25,34 @@ function buildPrompt(page) {
 }
 
 async function analyse(page) {
-  const prompt = buildPrompt(page);
+  if (!config.openai.apiKey) {
+    console.warn('OpenAI: no API key configured, skipping');
+    return null;
+  }
+  console.log(`OpenAI: analysing ${page.url} with model ${config.openai.model}`);
 
   const requestBody = {
-    model: config.anthropic.model,
+    model: config.openai.model,
     max_tokens: 2048,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: buildUserMessage(page) },
+    ],
   };
 
   try {
-    const response = await axios.post(config.anthropic.apiUrl, requestBody, {
+    const response = await axios.post(config.openai.apiUrl, requestBody, {
       headers: {
-        'x-api-key': config.anthropic.apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
+        'Authorization': `Bearer ${config.openai.apiKey}`,
+        'Content-Type': 'application/json',
       },
       timeout: 60000,
     });
 
-    const content = response.data?.content;
-    if (!content || content.length === 0) return null;
+    const content = response.data?.choices?.[0]?.message?.content;
+    if (!content) return null;
 
-    let text = content[0]?.text || '';
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    let text = content.replace(/```json/g, '').replace(/```/g, '').trim();
 
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
@@ -55,11 +60,9 @@ async function analyse(page) {
     text = text.substring(start, end + 1);
 
     const parsed = JSON.parse(text);
-
-    // Navigate to subjective node; fall back to root if missing
     const subjectiveNode = parsed.subjective || parsed;
 
-    const scores = {
+    return {
       relevance: subjectiveNode.relevance || 0,
       authority: subjectiveNode.authority || 0,
       clarity: subjectiveNode.clarity || 0,
@@ -72,10 +75,9 @@ async function analyse(page) {
         : [],
       geoSummary: parsed.geo_summary || '',
     };
-
-    return scores;
   } catch (err) {
-    console.warn(`AI analysis failed for ${page.url}: ${err.message}`);
+    const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+    console.warn(`OpenAI analysis failed for ${page.url}: ${detail}`);
     return null;
   }
 }

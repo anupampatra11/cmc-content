@@ -3,7 +3,82 @@ const sitemapService = require('./sitemapService');
 const crawlerService = require('./crawlerService');
 const seoRuleEngine = require('./seoRuleEngine');
 const anthropicService = require('./anthropicService');
+const openaiService = require('./openaiService');
 const scoreCalculator = require('./scoreCalculator');
+
+const STOP_WORDS = new Set(['the','a','an','and','or','to','of','in','for','is','it','this','that','with','as','by','on','at','be','are','was','were','have','has','your','you','can','will','use']);
+
+function extractKeywords(str) {
+  return new Set(
+    str.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !STOP_WORDS.has(w))
+  );
+}
+
+function jaccardSimilarity(a, b) {
+  const ka = extractKeywords(a);
+  const kb = extractKeywords(b);
+  const intersection = [...ka].filter(w => kb.has(w)).length;
+  const union = new Set([...ka, ...kb]).size;
+  return union > 0 ? intersection / union : 0;
+}
+
+function mergeSuggestions(claudeSuggestions, openaiSuggestions) {
+  const highPriority = [];
+  const claudeOnly = [];
+  const openaiMatched = new Set();
+
+  for (const cs of claudeSuggestions) {
+    let bestScore = 0;
+    let bestOiIdx = -1;
+
+    openaiSuggestions.forEach((os, idx) => {
+      if (openaiMatched.has(idx)) return;
+      const score = jaccardSimilarity(cs.text || cs, os.text || os);
+      if (score > bestScore) { bestScore = score; bestOiIdx = idx; }
+    });
+
+    if (bestScore >= 0.25 && bestOiIdx >= 0) {
+      highPriority.push({ claude: cs, openai: openaiSuggestions[bestOiIdx] });
+      openaiMatched.add(bestOiIdx);
+    } else {
+      claudeOnly.push(cs);
+    }
+  }
+
+  const openaiOnly = openaiSuggestions.filter((_, idx) => !openaiMatched.has(idx));
+  return { highPriority, claudeOnly, openaiOnly };
+}
+
+function mergeAiScores(claude, openai) {
+  if (!claude && !openai) return null;
+
+  const avg = (a, b, field) => {
+    if (a && b) return (a[field] + b[field]) / 2;
+    return (a || b)[field];
+  };
+
+  const claudeSugg = claude?.topSuggestions || [];
+  const openaiSugg = openai?.topSuggestions || [];
+  const merged = (claude && openai)
+    ? mergeSuggestions(claudeSugg, openaiSugg)
+    : { highPriority: [], claudeOnly: claudeSugg, openaiOnly: openaiSugg };
+
+  return {
+    relevance: avg(claude, openai, 'relevance'),
+    authority: avg(claude, openai, 'authority'),
+    clarity: avg(claude, openai, 'clarity'),
+    conversationalFit: avg(claude, openai, 'conversationalFit'),
+    uniqueness: avg(claude, openai, 'uniqueness'),
+    engagement: avg(claude, openai, 'engagement'),
+    trustworthiness: avg(claude, openai, 'trustworthiness'),
+    geoSummary: claude?.geoSummary || openai?.geoSummary || '',
+    claude: claude || null,
+    openai: openai || null,
+    highPriority: merged.highPriority,
+    claudeOnly: merged.claudeOnly,
+    openaiOnly: merged.openaiOnly,
+  };
+}
 
 const scanStore = new Map();
 
@@ -34,7 +109,13 @@ async function scanPage(url) {
     const checks = seoRuleEngine.runChecks(data);
     audit.checks = checks;
 
-    const aiScores = await anthropicService.analyse(data);
+    const [claudeResult, openaiResult] = await Promise.allSettled([
+      anthropicService.analyse(data),
+      openaiService.analyse(data),
+    ]);
+    const claudeScores = claudeResult.status === 'fulfilled' ? claudeResult.value : null;
+    const openaiScores = openaiResult.status === 'fulfilled' ? openaiResult.value : null;
+    const aiScores = mergeAiScores(claudeScores, openaiScores);
     audit.aiScores = aiScores;
 
     audit.scores = scoreCalculator.calculate(checks, aiScores, data);

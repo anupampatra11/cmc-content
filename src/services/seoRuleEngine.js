@@ -4,12 +4,13 @@ function truncate(s, max) {
   return s.length <= max ? s : s.substring(0, max) + '\u2026';
 }
 
-function check(id, category, label, pass, detail, weight, howToFix, codeExample) {
+function check(id, category, label, pass, detail, weight, howToFix, codeExample, currentHtml) {
   const result = { id, category, label, pass, detail, weight };
   if (!pass && howToFix) {
     result.howToFix = howToFix;
     result.codeExample = codeExample || null;
   }
+  if (currentHtml) result.currentHtml = currentHtml;
   return result;
 }
 
@@ -41,7 +42,8 @@ function runChecks(page) {
       : `Good length (${titleLen} chars)`,
     8,
     'Add or update the <title> tag in your <head>. Aim for 30\u201360 characters with your primary keyword near the front.',
-    '<head>\n  <title>Running Shoes for Men & Women | ASICS Netherlands</title>\n</head>'
+    '<head>\n  <title>Running Shoes for Men & Women | ASICS Netherlands</title>\n</head>',
+    page.titleHtml || null
   ));
 
   // 2. Meta description
@@ -54,7 +56,8 @@ function runChecks(page) {
       : `Good length (${metaLen} chars)`,
     6,
     'Add a <meta name="description"> tag in your <head>. Write a compelling 120\u2013160 character summary including your primary keyword.',
-    '<head>\n  <meta name="description" content="Shop ASICS running shoes and sportswear in the Netherlands. Free delivery on orders over 35 euros. Official ASICS webshop with the full collection." />\n</head>'
+    '<head>\n  <meta name="description" content="Shop ASICS running shoes and sportswear in the Netherlands. Free delivery on orders over 35 euros. Official ASICS webshop with the full collection." />\n</head>',
+    page.metaDescHtml || null
   ));
 
   // 3. Single H1
@@ -70,7 +73,8 @@ function runChecks(page) {
       : 'Remove extra H1 tags. Use H2 and H3 for subheadings instead.',
     h1Count === 0
       ? '<h1>Official ASICS Running Shoes & Sportswear | Netherlands</h1>'
-      : '<!-- Keep only ONE h1 -->\n<h1>Official ASICS Running Shoes</h1>\n\n<!-- Change extras to h2 -->\n<h2>Men\'s Running Shoes</h2>\n<h2>Women\'s Running Shoes</h2>'
+      : '<!-- Keep only ONE h1 -->\n<h1>Official ASICS Running Shoes</h1>\n\n<!-- Change extras to h2 -->\n<h2>Men\'s Running Shoes</h2>\n<h2>Women\'s Running Shoes</h2>',
+    page.h1Html || null
   ));
 
   // 4. Heading structure
@@ -82,7 +86,8 @@ function runChecks(page) {
       : `${h2Count} H2 headings found`,
     5,
     'Break your content into sections using H2 subheadings. Each major topic should have its own H2.',
-    '<h1>Running Shoes Guide</h1>\n<h2>How to Choose the Right Running Shoe</h2>\n<p>Content...</p>\n<h2>Road vs Trail Running Shoes</h2>\n<p>Content...</p>\n<h2>Finding Your Correct Shoe Size</h2>\n<p>Content...</p>'
+    '<h1>Running Shoes Guide</h1>\n<h2>How to Choose the Right Running Shoe</h2>\n<p>Content...</p>\n<h2>Road vs Trail Running Shoes</h2>\n<p>Content...</p>\n<h2>Finding Your Correct Shoe Size</h2>\n<p>Content...</p>',
+    page.h2Html || null
   ));
 
   // 5. Image alt text
@@ -110,7 +115,8 @@ function runChecks(page) {
     canonicalPass ? `Canonical: ${truncate(page.canonicalUrl, 60)}` : 'Missing canonical tag \u2014 risk of duplicate content penalties',
     8,
     'Add a canonical link tag to your <head> pointing to the preferred version of this URL. Prevents duplicate content penalties.',
-    '<head>\n  <link rel="canonical" href="https://www.asics.com/nl/nl-nl/" />\n</head>'
+    '<head>\n  <link rel="canonical" href="https://www.asics.com/nl/nl-nl/" />\n</head>',
+    page.canonicalHtml || null
   ));
 
   // 8. Schema markup
@@ -120,7 +126,8 @@ function runChecks(page) {
     schemaPass ? `Found: ${page.schemaTypes.join(', ')}` : 'No JSON-LD schema \u2014 critical for rich results and GEO',
     10,
     'Add a JSON-LD script block to your <head>. Choose the schema type that matches your content: WebSite for homepages, Product for product pages, Article for blog posts.',
-    '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "WebSite",\n  "name": "ASICS Netherlands",\n  "url": "https://www.asics.com/nl/nl-nl/",\n  "description": "Official ASICS running shoes and sportswear for the Netherlands."\n}\n</script>'
+    '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "WebSite",\n  "name": "ASICS Netherlands",\n  "url": "https://www.asics.com/nl/nl-nl/",\n  "description": "Official ASICS running shoes and sportswear for the Netherlands."\n}\n</script>',
+    page.schemaHtml || null
   ));
 
   // 9. Internal links
@@ -147,7 +154,8 @@ function runChecks(page) {
     authorPass ? `Author: ${page.authorName}` : 'No author field \u2014 critical for E-E-A-T and AI engine citability',
     8,
     'Add author metadata to your page. For article and blog content, name the author with their credentials. This is one of the strongest E-E-A-T signals and tells AI engines the content is trustworthy.',
-    '<!-- 1. Meta author tag -->\n<meta name="author" content="Dr. Sarah van den Berg, Sports Physiotherapist" />\n\n<!-- 2. JSON-LD Article author -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Article",\n  "author": {\n    "@type": "Person",\n    "name": "Dr. Sarah van den Berg",\n    "jobTitle": "Sports Physiotherapist",\n    "url": "https://www.asics.com/nl/nl-nl/authors/sarah-van-den-berg/"\n  }\n}\n</script>\n\n<!-- 3. Visible byline -->\n<div class="author-byline">\n  <a href="/authors/sarah-van-den-berg">Dr. Sarah van den Berg</a>\n  <span>Sports Physiotherapist</span>\n</div>'
+    '<!-- 1. Meta author tag -->\n<meta name="author" content="Dr. Sarah van den Berg, Sports Physiotherapist" />\n\n<!-- 2. JSON-LD Article author -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Article",\n  "author": {\n    "@type": "Person",\n    "name": "Dr. Sarah van den Berg",\n    "jobTitle": "Sports Physiotherapist",\n    "url": "https://www.asics.com/nl/nl-nl/authors/sarah-van-den-berg/"\n  }\n}\n</script>\n\n<!-- 3. Visible byline -->\n<div class="author-byline">\n  <a href="/authors/sarah-van-den-berg">Dr. Sarah van den Berg</a>\n  <span>Sports Physiotherapist</span>\n</div>',
+    page.authorMetaHtml || null
   ));
 
   // 12. Publish / update date
@@ -158,7 +166,8 @@ function runChecks(page) {
       : 'No publish date \u2014 AI engines deprioritise undated content',
     7,
     'Add publish and last-modified dates to your page metadata and JSON-LD. AI engines use freshness as a trust signal \u2014 undated content is often skipped.',
-    '<!-- Open Graph date tags -->\n<meta property="article:published_time" content="2025-01-15T09:00:00+01:00" />\n<meta property="article:modified_time" content="2025-05-10T14:30:00+01:00" />\n\n<!-- JSON-LD dates -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Article",\n  "datePublished": "2025-01-15",\n  "dateModified": "2025-05-10"\n}\n</script>\n\n<!-- Visible date -->\n<time datetime="2025-05-10">Last updated: 10 May 2025</time>'
+    '<!-- Open Graph date tags -->\n<meta property="article:published_time" content="2025-01-15T09:00:00+01:00" />\n<meta property="article:modified_time" content="2025-05-10T14:30:00+01:00" />\n\n<!-- JSON-LD dates -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Article",\n  "datePublished": "2025-01-15",\n  "dateModified": "2025-05-10"\n}\n</script>\n\n<!-- Visible date -->\n<time datetime="2025-05-10">Last updated: 10 May 2025</time>',
+    page.dateMetaHtml || null
   ));
 
   // 13. FAQ schema

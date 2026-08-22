@@ -616,6 +616,94 @@ body {
     color: var(--text-2);
     line-height: 1.5;
 }
+.suggestion-body {
+    flex: 1;
+    min-width: 0;
+}
+.toggle-btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* AI section labels (Claude / OpenAI) */
+.sugg-section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 6px;
+}
+.sugg-section-label:first-child {
+    margin-top: 0;
+}
+.sugg-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    letter-spacing: 0.04em;
+}
+.claude-badge {
+    background: rgba(196,181,253,0.12);
+    border-color: rgba(196,181,253,0.35);
+    color: #c4b5fd;
+}
+.openai-badge {
+    background: rgba(110,200,120,0.12);
+    border-color: rgba(110,200,120,0.35);
+    color: #6ec878;
+}
+.high-priority-badge {
+    background: rgba(245,158,11,0.12);
+    border-color: rgba(245,158,11,0.35);
+    color: #f59e0b;
+}
+.sugg-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-4);
+    text-transform: uppercase;
+}
+
+/* Source (where in the code) toggle + drawer */
+.source-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 11px;
+    color: #f59e0b;
+    font-family: var(--font);
+    transition: opacity 0.15s;
+}
+.source-toggle:hover {
+    opacity: 0.75;
+}
+.source-toggle .arrow {
+    font-size: 9px;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+.source-toggle.open .arrow {
+    transform: rotate(90deg);
+}
+.source-drawer {
+    display: none;
+    margin-top: 10px;
+    background: var(--bg-3);
+    border-radius: var(--radius);
+    border-left: 3px solid #f59e0b;
+    overflow: hidden;
+}
+.source-drawer.open {
+    display: block;
+}
 
 /* Audit findings */
 .findings-panel {
