@@ -3,6 +3,7 @@ let currentScanId = null;
 let pollInterval = null;
 let selectedPage = null;
 let allPages = [];
+let sortedPages = [];
 
 // ── Scan kick-off ─────────────────────────────────────────────────────────────
 async function startScan() {
@@ -40,7 +41,6 @@ async function startScan() {
 			return;
 		}
 		currentScanId = data.scanId;
-		allPages = [];
 		startPolling();
 	} catch (e) {
 		showError("Could not reach the server. Is Spring running on port 8080?");
@@ -91,14 +91,13 @@ function updateProgress(data) {
 
 	// Stream pages in as they complete
 	if (data.pages && data.pages.length > allPages.length) {
-		allPages = data.pages;
+		allPages = data.pages || [];
 		updateAverages(data);
 	}
 }
 
 // ── Show results ──────────────────────────────────────────────────────────────
 function showResults(data) {
-	allPages = data.pages || [];
 	showSection("resultsSection");
 
 	try {
@@ -113,8 +112,16 @@ function showResults(data) {
 		allPages.length + " page" + grammarPages + "scanned";
 
 	updateAverages(data);
+
+	// Sort the pages from highest to lowest ranked
+	sortedPages = [...allPages].sort(
+		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
+	);
 	renderPageList();
-	if (allPages.length > 0) selectPage(0);
+
+	const indexHighestRankedPage = allPages.indexOf(sortedPages[0])
+	if (allPages.length > 0) 
+		selectPage(indexHighestRankedPage);
 }
 
 function updateAverages(data) {
@@ -134,11 +141,8 @@ function setAvg(id, val) {
 function renderPageList() {
 	const list = document.getElementById("pageList");
 	list.innerHTML = "";
-	const sorted = [...allPages].sort(
-		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
-	);
 
-	sorted.forEach((page, i) => {
+	sortedPages.forEach((page) => {
 		const origIdx = allPages.indexOf(page);
 		const score = page.scores?.combined ?? "?";
 		const div = document.createElement("div");
@@ -153,132 +157,6 @@ function renderPageList() {
         `;
 		list.appendChild(div);
 	});
-}
-
-// ── AI Suggestion item helper ─────────────────────────────────────────────────
-function renderSuggestionItem(s, i, prefix) {
-	const text = typeof s === 'string' ? s : (s.text || '');
-	const uid = prefix + '-' + i + '-' + Math.random().toString(36).slice(2, 6);
-
-	const fixDrawer = s.howToFix ? `
-		<button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
-			<span class="arrow">▶</span> How to fix
-		</button>
-		<div class="fix-drawer" id="fix-${uid}">
-			<div class="fix-how">
-				<strong>What to do</strong>
-				${esc(s.howToFix)}
-			</div>
-			${s.codeExample ? `<div class="fix-code-wrap">
-				<pre class="fix-code" id="code-${uid}">${esc(s.codeExample)}</pre>
-				<button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
-			</div>` : ''}
-		</div>` : '';
-
-	const sourceDrawer = s.codeExample && !s.howToFix ? `
-		<button class="source-toggle" id="src-tog-${uid}" onclick="toggleSource('${uid}')">
-			<span class="arrow">▶</span> Where in the code
-		</button>
-		<div class="source-drawer" id="src-${uid}">
-			<div class="fix-code-wrap">
-				<pre class="fix-code" id="src-code-${uid}">${esc(s.codeExample)}</pre>
-				<button class="copy-btn" id="src-copy-${uid}" onclick="copySource('${uid}')">Copy</button>
-			</div>
-		</div>` : '';
-
-	return `
-		<div class="suggestion-item">
-			<div class="suggestion-num">${i + 1}</div>
-			<div class="suggestion-text-wrap">
-				<div class="suggestion-text">${esc(text)}</div>
-				<div class="sugg-drawers">${fixDrawer}${sourceDrawer}</div>
-			</div>
-		</div>`;
-}
-
-// ── AI Suggestions renderer ───────────────────────────────────────────────────
-function renderAiSuggestions(ai) {
-	const hasClaude = ai.claude && ai.claude.topSuggestions && ai.claude.topSuggestions.length > 0;
-	const hasOpenai = ai.openai && ai.openai.topSuggestions && ai.openai.topSuggestions.length > 0;
-	const hasDual = hasClaude && hasOpenai;
-
-	// Legacy path: no dual-LLM data (old scans or both failed)
-	if (!hasClaude && !hasOpenai) {
-		if (!ai.topSuggestions || ai.topSuggestions.length === 0) return '';
-		return `
-		<div class="suggestions-panel fade-in">
-			<div class="panel-title">✦ AI Recommendations</div>
-			${ai.topSuggestions.map((s, i) => renderSuggestionItem(s, i, 'leg')).join('')}
-		</div>`;
-	}
-
-	const highPriority = ai.highPriority || [];
-	const claudeOnly = ai.claudeOnly || (hasClaude ? ai.claude.topSuggestions : []);
-	const openaiOnly = ai.openaiOnly || (hasOpenai ? ai.openai.topSuggestions : []);
-
-	const highPriorityHtml = highPriority.length > 0 ? `
-		<div class="sugg-section">
-			<div class="sugg-section-header">
-				<span class="sugg-priority-badge priority-high">Both LLMs flagged</span>
-				<span class="sugg-section-label">High Priority</span>
-			</div>
-			${highPriority.map(({ claude, openai }, i) => {
-			const uid = 'hp-' + i + '-' + Math.random().toString(36).slice(2, 6);
-			const claudeText = typeof claude === 'string' ? claude : (claude.text || '');
-			const openaiText = typeof openai === 'string' ? openai : (openai.text || '');
-			const fixDrawer = claude.howToFix ? `
-				<button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
-					<span class="arrow">▶</span> How to fix
-				</button>
-				<div class="fix-drawer" id="fix-${uid}">
-					<div class="fix-how"><strong>What to do</strong> ${esc(claude.howToFix)}</div>
-					${claude.codeExample ? `<div class="fix-code-wrap">
-						<pre class="fix-code" id="code-${uid}">${esc(claude.codeExample)}</pre>
-						<button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
-					</div>` : ''}
-				</div>` : '';
-			return `
-			<div class="suggestion-item suggestion-high">
-				<div class="sugg-llm-row">
-					<span class="llm-badge llm-claude">Claude</span>
-					<span class="suggestion-text">${esc(claudeText)}</span>
-				</div>
-				<div class="sugg-llm-row sugg-llm-secondary">
-					<span class="llm-badge llm-openai">OpenAI</span>
-					<span class="suggestion-text dim-detail">${esc(openaiText)}</span>
-				</div>
-				<div class="sugg-drawers">${fixDrawer}</div>
-			</div>`;
-		}).join('')}
-		</div>` : '';
-
-	const claudeOnlyHtml = claudeOnly.length > 0 ? `
-		<div class="sugg-section">
-			<div class="sugg-section-header">
-				<span class="llm-badge llm-claude">Claude</span>
-				<span class="sugg-section-label">${hasDual ? 'Claude specific' : 'Recommendations'}</span>
-			</div>
-			${claudeOnly.map((s, i) => renderSuggestionItem(s, i, 'cl')).join('')}
-		</div>` : '';
-
-	const openaiOnlyHtml = openaiOnly.length > 0 ? `
-		<div class="sugg-section">
-			<div class="sugg-section-header">
-				<span class="llm-badge llm-openai">OpenAI</span>
-				<span class="sugg-section-label">${hasDual ? 'OpenAI specific' : 'Recommendations'}</span>
-			</div>
-			${openaiOnly.map((s, i) => renderSuggestionItem(s, i, 'oi')).join('')}
-		</div>` : '';
-
-	if (!highPriorityHtml && !claudeOnlyHtml && !openaiOnlyHtml) return '';
-
-	return `
-	<div class="suggestions-panel fade-in">
-		<div class="panel-title">✦ AI Recommendations</div>
-		${highPriorityHtml}
-		${claudeOnlyHtml}
-		${openaiOnlyHtml}
-	</div>`;
 }
 
 // ── Page detail ───────────────────────────────────────────────────────────────
@@ -296,31 +174,8 @@ function selectPage(idx) {
 		);
 	});
 	// Simpler: re-render list to set active
-	renderPageListWithActive(idx);
+	renderPageList();
 	renderDetail(allPages[idx]);
-}
-
-function renderPageListWithActive(activeIdx) {
-	const list = document.getElementById("pageList");
-	list.innerHTML = "";
-	const sorted = [...allPages].sort(
-		(a, b) => (b.scores?.combined || 0) - (a.scores?.combined || 0),
-	);
-	sorted.forEach((page) => {
-		const origIdx = allPages.indexOf(page);
-		const score = page.scores?.combined ?? "?";
-		const div = document.createElement("div");
-		div.className = "page-item" + (origIdx === activeIdx ? " active" : "");
-		div.onclick = () => selectPage(origIdx);
-		div.innerHTML = `
-            <div class="page-item-info">
-                <div class="page-item-title">${esc(page.title || page.slug || page.url)}</div>
-                <div class="page-item-path">${esc(page.slug || "/")}</div>
-            </div>
-            <div class="page-item-score ${scoreClass(score)}">${score}</div>
-        `;
-		list.appendChild(div);
-	});
 }
 
 function renderDetail(page) {
@@ -333,7 +188,12 @@ function renderDetail(page) {
 	const scores = page.scores || { seo: 0, geo: 0, combined: 0 };
 	const ai = page.aiScores || {};
 	const checks = page.checks || [];
-	const failed = checks.filter((c) => !c.pass);
+
+	// Failed checks are sorted based on severity - worse first
+	const failed = checks
+		.filter((c) => !c.pass)
+		.sort((a, b) => (b.weight) - (a.weight),
+	);
 	const passed = checks.filter((c) => c.pass);
 
 	wrap.innerHTML = `
@@ -344,8 +204,8 @@ function renderDetail(page) {
             <div class="page-detail-title">${esc(page.title || page.url)}</div>
             <div class="page-detail-url">${esc(page.url)}</div>
             <div class="score-rings">
-                ${scoreRing(scores.seo, "SEO Score", 108)}
-                ${scoreRing(scores.geo, "GEO Score", 108)}
+                ${scoreRing(scores.seo, "SEO Score", 128)}
+                ${scoreRing(scores.geo, "GEO Score", 128)}
                 ${scoreRing(scores.combined, "Velocity Score", 128)}
             </div>
             ${ai.geoSummary
@@ -358,7 +218,22 @@ function renderDetail(page) {
         </div>
 
         <!-- AI Suggestions -->
-        ${renderAiSuggestions(ai)}
+        ${ai.topSuggestions && ai.topSuggestions.length > 0
+			? `
+        <div class="suggestions-panel fade-in">
+            <div class="panel-title">✦ AI Recommendations</div>
+            ${ai.topSuggestions
+				.map(
+					(s, i) => `
+            <div class="suggestion-item">
+                <div class="suggestion-num">${i + 1}</div>
+                <div class="suggestion-text">${esc(s)}</div>
+            </div>`,
+				)
+				.join("")}
+        </div>`
+			: ""
+		}
 
         <!-- Audit Findings -->
         <div class="findings-panel fade-in">
@@ -407,25 +282,26 @@ function renderDetail(page) {
 
 // ── HTML helpers ──────────────────────────────────────────────────────────────
 function scoreRing(score, label, size) {
-	const r = size * 0.38;
-	const circ = 2 * Math.PI * r;
-	const dash = (Math.min(100, score) / 100) * circ;
-	const col = scoreColor(score);
+	const radius = size * 0.38;
+	const circle = 2 * Math.PI * radius;
+	const dash = (Math.min(100, score) / 100) * circle;
+	const color = scoreColor(score);
 	const band = scoreBand(score);
+	
 	return `
     <div class="score-ring-wrap">
-        <div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0;">
-            <svg width="${size}" height="${size}" style="transform:rotate(-90deg);display:block;">
-                <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#1E293B" stroke-width="${size * 0.08}"/>
-                <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${col}"
-                    stroke-width="${size * 0.08}" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
+        <div class="score-ring-visual" width=${size} height=${size}>
+            <svg width="${size}" height="${size}">
+                <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="#1E293B" stroke-width="${size * 0.08}"/>
+                <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="${color}"
+                    stroke-width="${size * 0.08}" stroke-dasharray="${dash} ${circle}" stroke-linecap="round"/>
             </svg>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
-                <span style="font-size:${Math.round(size * 0.24)}px;font-weight:700;color:#F1F5F9;font-family:var(--mono);line-height:1">${score}</span>
-                <span style="font-size:${Math.round(size * 0.095)}px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:.08em;line-height:1">${band}</span>
+            <div class="score-ring-inner-text">
+                <span class="score-number">${score}</span>
+                <span class="score-text" style="color:${color}">${band}</span>
             </div>
         </div>
-        <div class="score-ring-label" style="margin-top:8px">${label}</div>
+        <div class="score-ring-label" >${label}</div>
     </div>`;
 }
 
@@ -436,7 +312,7 @@ function checkRow(check, passing) {
 
 	const uid = check.id + "-" + Math.random().toString(36).slice(2, 7);
 	const hasFix = !passing && check.howToFix;
-
+	
 	const checkCodeExample = check.codeExample
 		? `
 		<div class="fix-code-wrap">
@@ -444,7 +320,7 @@ function checkRow(check, passing) {
 			<button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
 		</div>`
 		: "";
-
+	
 	const fixDrawer = hasFix
 		? `
         <button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
@@ -459,19 +335,6 @@ function checkRow(check, passing) {
         </div>`
 		: "";
 
-	const sourceDrawer = check.currentHtml
-		? `
-        <button class="source-toggle" id="src-tog-${uid}" onclick="toggleSource('${uid}')">
-            <span class="arrow">▶</span> Where in the code
-        </button>
-        <div class="source-drawer" id="src-${uid}">
-            <div class="fix-code-wrap">
-                <pre class="fix-code" id="src-code-${uid}">${esc(check.currentHtml)}</pre>
-                <button class="copy-btn" id="src-copy-${uid}" onclick="copySource('${uid}')">Copy</button>
-            </div>
-        </div>`
-		: "";
-
 	return `
     <div class="check-row">
         <div class="check-icon ${passing ? "pass" : "fail"}">${iconSvg}</div>
@@ -483,7 +346,6 @@ function checkRow(check, passing) {
             </div>
             <div class="check-detail ${passing ? "dim-detail" : ""}">${esc(check.detail)}</div>
             ${fixDrawer}
-            ${sourceDrawer}
         </div>
     </div>`;
 }
@@ -607,238 +469,204 @@ function copyCode(id) {
 	});
 }
 
-// ── Source drawer toggle ──────────────────────────────────────────────────────
-function toggleSource(id) {
-	const drawer = document.getElementById("src-" + id);
-	const toggle = document.getElementById("src-tog-" + id);
-	if (!drawer || !toggle) return;
-	const isOpen = drawer.classList.contains("open");
-	drawer.classList.toggle("open", !isOpen);
-	toggle.classList.toggle("open", !isOpen);
+// ── Handle dropdown report download ───────────────────────────────────────────
+/* When the user clicks on the button, toggle between hiding and showing the dropdown content */
+function openDropdown() {
+	document.getElementById("dropdown-download").classList.toggle("show-dropdown-options");
 }
 
-// ── Copy source HTML to clipboard ─────────────────────────────────────────────
-function copySource(id) {
-	const pre = document.getElementById("src-code-" + id);
-	const btn = document.getElementById("src-copy-" + id);
-	if (!pre || !btn) return;
-	navigator.clipboard.writeText(pre.textContent).then(() => {
-		btn.textContent = "Copied!";
-		btn.classList.add("copied");
-		setTimeout(() => {
-			btn.textContent = "Copy";
-			btn.classList.remove("copied");
-		}, 2000);
-	});
+// Close the dropdown if the user clicks outside of it
+window.onclick = function (event) {
+	if (!event.target.matches('.dropdown-btn')) {
+		const dropdowns = document.getElementsByClassName("dropdown-content");
+		for (const element of dropdowns) {
+			let openDropdown = element;
+			if (openDropdown.classList.contains("show-dropdown-options")) {
+				openDropdown.classList.remove("show-dropdown-options");
+			}
+		}
+	}
 }
 
 // ── Download the data as a PDF ────────────────────────────────────────────────
 function downloadPdf() {
 	const { jsPDF } = window.jspdf;
-	const pdf = new jsPDF({ unit: "px" });
-	const pageH = pdf.internal.pageSize.getHeight();
-	const pageW = pdf.internal.pageSize.getWidth();
-	const x = 40;
-	const maxW = pageW - x * 2;
+
+	const pdf = new jsPDF({unit: "px"});
+	let x = 40;
 	let y = 50;
 
 	pdf.setFont("helvetica", "normal");
 	pdf.setCharSpace(0);
 
-	// ── Helpers ──────────────────────────────────────────────────────────────
-	function checkPage(needed) {
-		if (y + (needed || 20) > pageH - 40) {
+	// Title
+	pdf.setFontSize(FontSizesPDF.title);
+	pdf.text('Content Velocity Scan Report', x, y);
+	y += LineBreakPDF.section
+
+	// Scanned website and how many pages were scanned
+	pdf.setFontSize(FontSizesPDF.mediumText);
+	y += FontSizesPDF.mediumText;
+	pdf.text(
+		`Domain: ${document.getElementById('summaryDomain')?.textContent || ''}`,
+		x,
+		y
+	);
+	
+	y += FontSizesPDF.mediumText;
+	pdf.text(
+		`Pages scanned: ${document.getElementById('summaryCount')?.textContent || ''}`,
+		x,
+		y
+	);
+	
+	y += LineBreakPDF.section
+
+	// Average scores - all pages
+	pdf.setFontSize(FontSizesPDF.largeText);
+	y += FontSizesPDF.largeText;
+	pdf.text(
+		`Average SEO: ${document.getElementById('avgSeo')?.textContent || '-'}`,
+		x,
+		y
+	);
+	
+	y += FontSizesPDF.largeText;
+	pdf.text(
+		`Average GEO: ${document.getElementById('avgGeo')?.textContent || '-'}`,
+		x,
+		y
+	);
+
+	y += FontSizesPDF.largeText;
+	pdf.text(
+		`Velocity Score: ${document.getElementById('avgCombined')?.textContent || '-'}`,
+		x,
+		y
+	);
+
+	y += LineBreakPDF.section
+
+	// Results overview - all pages
+	pdf.setFontSize(FontSizesPDF.header);
+	y += FontSizesPDF.header;
+	pdf.text('Page Results', x, y);
+	y += LineBreakPDF.text;
+
+	pdf.setFontSize(FontSizesPDF.smallText);
+	y += FontSizesPDF.smallText;
+	for (const page of allPages) {
+		if (y > 590) {
 			pdf.addPage();
 			y = 50;
 		}
+
+		const pageDesc = (page.title ?? page.url)
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '');
+		const pageName = pdf.splitTextToSize(pageDesc, 360);
+		pdf.text(pageName, x, y)
+
+		y += pageName.length * FontSizesPDF.smallText;
+
+		const score = `    Score: ${page.scores?.combined ?? 0}`;
+		pdf.text(score, x, y)
+		
+		y += FontSizesPDF.smallText;
 	}
 
-	function drawText(text, fontSize, rgb, indent, bold) {
-		pdf.setFont("helvetica", bold ? "bold" : "normal");
-		pdf.setFontSize(fontSize);
-		pdf.setTextColor(rgb[0], rgb[1], rgb[2]);
-		const safe = String(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-		const lines = pdf.splitTextToSize(safe, maxW - (indent || 0));
-		checkPage(lines.length * fontSize * 1.4);
-		pdf.text(lines, x + (indent || 0), y);
-		y += lines.length * fontSize * 1.4;
-	}
-
-	function sectionTitle(text) {
-		y += 8;
-		checkPage(28);
-		pdf.setFont("helvetica", "bold");
-		pdf.setFontSize(FontSizesPDF.largeText);
-		pdf.setTextColor(139, 92, 246);
-		pdf.text(text, x, y);
-		y += 4;
-		pdf.setDrawColor(139, 92, 246);
-		pdf.setLineWidth(0.5);
-		pdf.line(x, y, x + maxW, y);
-		y += 10;
-		pdf.setFont("helvetica", "normal");
-	}
-
-	// ── Summary page ─────────────────────────────────────────────────────────
-	drawText('Content Velocity Scan Report', FontSizesPDF.title, [241, 245, 249], 0, true);
-	y += 10;
-
-	const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-	drawText(`Domain: ${document.getElementById('summaryDomain')?.textContent || ''}`, FontSizesPDF.mediumText, [148, 163, 184]);
-	drawText(`Pages scanned: ${document.getElementById('summaryCount')?.textContent || ''}`, FontSizesPDF.mediumText, [148, 163, 184]);
-	drawText(`Report date: ${dateStr}`, FontSizesPDF.mediumText, [148, 163, 184]);
-	y += 12;
-
-	drawText(`Average SEO Score: ${document.getElementById('avgSeo')?.textContent || '-'}`, FontSizesPDF.largeText, [241, 245, 249]);
-	drawText(`Average GEO Score: ${document.getElementById('avgGeo')?.textContent || '-'}`, FontSizesPDF.largeText, [241, 245, 249]);
-	drawText(`Average Velocity Score: ${document.getElementById('avgCombined')?.textContent || '-'}`, FontSizesPDF.largeText, [241, 245, 249]);
-
-	// ── Per-page detail ───────────────────────────────────────────────────────
-	for (const page of allPages) {
+	// Individual pages with more details
+	for (const page of allPages){
 		pdf.addPage();
 		y = 50;
 
-		const scores = page.scores || {};
-		const ai = page.aiScores || {};
-		const checks = page.checks || [];
-		const failed = checks.filter(c => !c.pass);
-		const passed = checks.filter(c => c.pass);
+		// Header with the name of the analysed page
+		pdf.setFontSize(FontSizesPDF.header)
+		const pageDesc = (page.title ?? page.url)
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '');
+		const pageName = pdf.splitTextToSize(pageDesc, 360);
+		pdf.text(pageName, x, y)
+		y += pageName.length * FontSizesPDF.smallText;
 
-		// Page header
-		drawText(page.title || page.url, FontSizesPDF.header, [241, 245, 249], 0, true);
-		drawText(page.url, FontSizesPDF.smallText, [100, 116, 139]);
-		y += 6;
-		drawText(
-			`SEO: ${scores.seo ?? '-'}   |   GEO: ${scores.geo ?? '-'}   |   Velocity: ${scores.combined ?? '-'}`,
-			FontSizesPDF.mediumText, [241, 245, 249]
+		// Page scores
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+
+		pdf.text(
+			`SEO: ${page.scores.seo || '-'}`,
+			x,
+			y
 		);
-		if (ai.geoSummary) {
-			drawText(`GEO Gap: ${ai.geoSummary}`, FontSizesPDF.smallText, [148, 163, 184]);
-		}
+		
+		y += FontSizesPDF.largeText;
+		pdf.text(
+			`GEO: ${page.scores.geo || '-'}`,
+			x,
+			y
+		);
 
-		// ── AI Recommendations ────────────────────────────────────────────────
-		const highPrio = ai.highPriority || [];
-		const claudeSuggs = ai.claudeOnly || ai.claude?.topSuggestions || [];
-		const openaiSuggs = ai.openaiOnly || ai.openai?.topSuggestions || [];
+		y += FontSizesPDF.largeText;
+		pdf.text(
+			`Velocity: ${page.scores.combined || '-'}`,
+			x,
+			y
+		);
+		
+		y += LineBreakPDF.section;
 
-		if (highPrio.length || claudeSuggs.length || openaiSuggs.length) {
-			sectionTitle('AI RECOMMENDATIONS');
+		// Issues to fix
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+		pdf.text("Issues to fix", x, y)
 
-			const renderSuggsPDF = (suggs, label, labelRgb) => {
-				if (!suggs.length) return;
-				checkPage(16);
-				pdf.setFont("helvetica", "bold");
-				pdf.setFontSize(FontSizesPDF.smallText);
-				pdf.setTextColor(labelRgb[0], labelRgb[1], labelRgb[2]);
-				pdf.text(label, x, y);
-				y += FontSizesPDF.smallText * 1.4;
-				pdf.setFont("helvetica", "normal");
+		const failed = page.checks
+			.filter((c) => !c.pass)
+			.sort((a, b) => (b.weight) - (a.weight),
+		);
+		failed.map((check) => {
+			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			pdf.text(check.label, x, y);
 
-				suggs.forEach((s, i) => {
-					const text = typeof s === 'string' ? s : (s.text || '');
-					drawText(`${i + 1}. ${text}`, FontSizesPDF.smallText, [241, 245, 249], 10);
-					if (s.howToFix) {
-						drawText(`How to fix: ${s.howToFix}`, FontSizesPDF.smallText, [148, 163, 184], 18);
-					}
-					y += 3;
-				});
-				y += 4;
-			};
+			// Description with suggestion on what/how to fix the issue
+			pdf.setFontSize(FontSizesPDF.smallText).setFont(undefined, 'normal');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			const fixDesc = pdf.splitTextToSize(check.howToFix, 360);
+			pdf.text(fixDesc, x, y);
+			y = increaseCoordinate(y, fixDesc.length * FontSizesPDF.smallText, pdf)
 
-			if (highPrio.length) {
-				checkPage(16);
-				pdf.setFont("helvetica", "bold");
-				pdf.setFontSize(FontSizesPDF.smallText);
-				pdf.setTextColor(245, 158, 11);
-				pdf.text('Both LLMs flagged:', x, y);
-				y += FontSizesPDF.smallText * 1.4;
-				pdf.setFont("helvetica", "normal");
-				highPrio.forEach(({ claude, openai }, i) => {
-					const cText = typeof claude === 'string' ? claude : (claude.text || '');
-					const oText = typeof openai === 'string' ? openai : (openai.text || '');
-					drawText(`${i + 1}. ${cText}`, FontSizesPDF.smallText, [241, 245, 249], 10);
-					drawText(`   OpenAI: ${oText}`, FontSizesPDF.smallText, [148, 163, 184], 14);
-					if (claude.howToFix) {
-						drawText(`How to fix: ${claude.howToFix}`, FontSizesPDF.smallText, [100, 116, 139], 18);
-					}
-					y += 3;
-				});
-				y += 4;
+			// Show the code example if present
+			if (check.codeExample){
+			 	x += LineBreakPDF.section;
+				const codeSnippet = pdf.splitTextToSize(check.codeExample, 360 - LineBreakPDF.section);
+				pdf.text(codeSnippet, x, y);
+				y = increaseCoordinate(y, codeSnippet.length * 10, pdf)
+				x -= LineBreakPDF.section;
 			}
+		})
 
-			renderSuggsPDF(claudeSuggs, 'Claude:', [196, 181, 253]);
-			renderSuggsPDF(openaiSuggs, 'OpenAI:', [110, 200, 120]);
-		}
+		// Passed checks
+		pdf.setFontSize(FontSizesPDF.largeText);
+		y += FontSizesPDF.largeText;
+		pdf.text("Passed checks", x, y)
 
-		// ── Audit Findings ────────────────────────────────────────────────────
-		if (checks.length) {
-			sectionTitle(`AUDIT FINDINGS  (${failed.length} issues, ${passed.length} passed)`);
+		const passed = page.checks.filter((c) => c.pass);
+		passed.map((check) => {
+			pdf.setFontSize(FontSizesPDF.mediumText).setFont(undefined, 'bold');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			pdf.text(check.label, x, y);
 
-			if (failed.length) {
-				checkPage(16);
-				pdf.setFont("helvetica", "bold");
-				pdf.setFontSize(FontSizesPDF.smallText);
-				pdf.setTextColor(239, 68, 68);
-				pdf.text('Issues to fix:', x, y);
-				y += FontSizesPDF.smallText * 1.4;
-				pdf.setFont("helvetica", "normal");
-
-				failed.forEach(c => {
-					drawText(`x  ${c.label}  [${c.category}]  -${c.weight} pts`, FontSizesPDF.smallText, [241, 245, 249], 10);
-					drawText(c.detail, FontSizesPDF.smallText, [148, 163, 184], 18);
-					if (c.howToFix) {
-						drawText(`How to fix: ${c.howToFix}`, FontSizesPDF.smallText, [100, 116, 139], 18);
-					}
-					y += 4;
-				});
-			}
-
-			if (passed.length) {
-				y += 4;
-				checkPage(16);
-				pdf.setFont("helvetica", "bold");
-				pdf.setFontSize(FontSizesPDF.smallText);
-				pdf.setTextColor(34, 197, 94);
-				pdf.text('Passing:', x, y);
-				y += FontSizesPDF.smallText * 1.4;
-				pdf.setFont("helvetica", "normal");
-
-				passed.forEach(c => {
-					drawText(`v  ${c.label}  -  ${c.detail}`, FontSizesPDF.smallText, [148, 163, 184], 10);
-					y += 2;
-				});
-			}
-		}
-
-		// ── AI Signal Analysis ────────────────────────────────────────────────
-		const signals = [
-			['Relevance', ai.relevance],
-			['Authority', ai.authority],
-			['Clarity', ai.clarity],
-			['Conversational Fit', ai.conversationalFit],
-			['Uniqueness', ai.uniqueness],
-			['Engagement', ai.engagement],
-			['Trustworthiness', ai.trustworthiness],
-		].filter(([, v]) => v != null);
-
-		if (signals.length) {
-			sectionTitle('AI SIGNAL ANALYSIS');
-			signals.forEach(([label, val]) => {
-				const pct = Math.round((val || 0) * 100);
-				const col = pct >= 70 ? [34, 197, 94] : pct >= 50 ? [245, 158, 11] : [239, 68, 68];
-				checkPage(16);
-				pdf.setFontSize(FontSizesPDF.smallText);
-				pdf.setFont("helvetica", "normal");
-				pdf.setTextColor(241, 245, 249);
-				pdf.text(`${label}:`, x + 10, y);
-				pdf.setTextColor(col[0], col[1], col[2]);
-				pdf.text(`${pct}%`, x + 130, y);
-				y += FontSizesPDF.smallText * 1.5;
-			});
-		}
+			// Description with findings which made the check pass
+			pdf.setFontSize(FontSizesPDF.smallText).setFont(undefined, 'normal');
+			y = increaseCoordinate(y, FontSizesPDF.smallText, pdf)
+			const passDetail = pdf.splitTextToSize(check.detail, 360);
+			pdf.text(passDetail, x, y);
+			y = increaseCoordinate(y, passDetail.length * FontSizesPDF.smallText, pdf)
+		})
 	}
 
-	pdf.save("Content-velocity-scanner_Report.pdf");
+	pdf.save("Content-velocity-scanner_Report.pdf")
 }
 
 const LineBreakPDF = {
@@ -852,6 +680,16 @@ const FontSizesPDF = {
 	largeText: 14,
 	mediumText: 12,
 	smallText: 11
+}
+
+const increaseCoordinate = (current, spaceToAdd, pdf) => {
+	const possibleCoordinate = current + spaceToAdd;
+	if (possibleCoordinate > 590){
+		pdf.addPage();
+		return 50;
+	}
+	else
+		return possibleCoordinate;
 }
 
 // ── Download the data as a CSV ────────────────────────────────────────────────
@@ -932,7 +770,7 @@ function escapeCSVValue(value) {
     stringValue.includes('"') ||
     stringValue.includes("\n")
   ) {
-    return `"${stringValue.replace(/"/g, '""')}"`;
+    return `"${stringValue.replaceAll('"', '""')}"`;
   }
 
   return stringValue;
