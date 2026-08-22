@@ -40,17 +40,32 @@ function checkRow(check, passing) {
 		</div>`
 		: "";
 
-	const fixDrawer = hasFix
-		? `
-        <button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
+	const fixBtn = hasFix
+		? `<button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
             <span class="arrow">▶</span> How to fix
-        </button>
-        <div class="fix-drawer" id="fix-${uid}">
+        </button>`
+		: "";
+	const fixDrawer = hasFix
+		? `<div class="fix-drawer" id="fix-${uid}">
             <div class="fix-how">
                 <strong>What to do</strong>
                 ${esc(check.howToFix)}
             </div>
             ${checkCodeExample}
+        </div>`
+		: "";
+
+	const sourceBtn = check.currentHtml
+		? `<button class="source-toggle" id="src-tog-${uid}" onclick="toggleSource('${uid}')">
+            <span class="arrow">▶</span> Where in the code
+        </button>`
+		: "";
+	const sourceDrawer = check.currentHtml
+		? `<div class="source-drawer" id="src-${uid}">
+            <div class="fix-code-wrap">
+                <pre class="fix-code" id="code-src-${uid}">${esc(check.currentHtml)}</pre>
+                <button class="copy-btn" id="copy-src-${uid}" onclick="copyCode('src-${uid}')">Copy</button>
+            </div>
         </div>`
 		: "";
 
@@ -64,7 +79,8 @@ function checkRow(check, passing) {
                 ${!passing ? `<span class="check-weight">&#8722;${check.weight} pts</span>` : ""}
             </div>
             <div class="check-detail ${passing ? "dim-detail" : ""}">${esc(check.detail)}</div>
-            ${fixDrawer}
+            ${fixBtn || sourceBtn ? `<div class="toggle-btn-row">${fixBtn}${sourceBtn}</div>` : ""}
+            ${fixDrawer}${sourceDrawer}
         </div>
     </div>`;
 }

@@ -1,3 +1,75 @@
+// ── AI Recommendations rendering ──────────────────────────────────────────────
+function renderAiSuggestionItem(s, i, prefix) {
+	if (!s) return '';
+	const text = typeof s === 'string' ? s : (s.text || '');
+	const uid = `${prefix}-${i}-${Math.random().toString(36).slice(2, 5)}`;
+
+	const fixBtn = s.howToFix ? `
+		<button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
+			<span class="arrow">▶</span> How to fix
+		</button>` : '';
+	const fixDrawer = s.howToFix ? `
+		<div class="fix-drawer" id="fix-${uid}">
+			<div class="fix-how"><strong>What to do</strong>${esc(s.howToFix)}</div>
+		</div>` : '';
+
+	const codeBtn = s.codeExample ? `
+		<button class="source-toggle" id="src-tog-${uid}" onclick="toggleSource('${uid}')">
+			<span class="arrow">▶</span> Where in the code
+		</button>` : '';
+	const codeDrawer = s.codeExample ? `
+		<div class="source-drawer" id="src-${uid}">
+			<div class="fix-code-wrap">
+				<pre class="fix-code" id="code-${uid}">${esc(s.codeExample)}</pre>
+				<button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
+			</div>
+		</div>` : '';
+
+	return `
+	<div class="suggestion-item">
+		<div class="suggestion-num">${i + 1}</div>
+		<div class="suggestion-body">
+			<div class="suggestion-text">${esc(text)}</div>
+			${fixBtn || codeBtn ? `<div class="toggle-btn-row">${fixBtn}${codeBtn}</div>` : ''}
+			${fixDrawer}${codeDrawer}
+		</div>
+	</div>`;
+}
+
+function renderAiSuggestions(ai) {
+	const highPriority = ai.highPriority || [];
+	const claudeOnly = ai.claudeOnly || [];
+	const openaiOnly = ai.openaiOnly || [];
+
+	if (!highPriority.length && !claudeOnly.length && !openaiOnly.length) return '';
+
+	const sectionLabel = (badgeClass, badgeText, titleText) => `
+		<div class="sugg-section-label">
+			<span class="sugg-badge ${badgeClass}">${badgeText}</span>
+			<span class="sugg-section-title">${titleText}</span>
+		</div>`;
+
+	let html = `<div class="suggestions-panel fade-in"><div class="panel-title">✦ AI Recommendations</div>`;
+
+	if (highPriority.length) {
+		html += sectionLabel('high-priority-badge', '⚡ Both', 'HIGH PRIORITY');
+		html += highPriority.map(({ claude }, i) => renderAiSuggestionItem(claude, i, 'hp')).join('');
+	}
+
+	if (claudeOnly.length) {
+		html += sectionLabel('claude-badge', 'Claude', 'CLAUDE SPECIFIC');
+		html += claudeOnly.map((s, i) => renderAiSuggestionItem(s, i, 'cl')).join('');
+	}
+
+	if (openaiOnly.length) {
+		html += sectionLabel('openai-badge', 'OpenAI', 'OPENAI SPECIFIC');
+		html += openaiOnly.map((s, i) => renderAiSuggestionItem(s, i, 'oi')).join('');
+	}
+
+	html += '</div>';
+	return html;
+}
+
 // ── Show results ──────────────────────────────────────────────────────────────
 function showResults(data) {
 	showSection("resultsSection");
@@ -107,22 +179,7 @@ function renderDetail(page) {
         </div>
 
         <!-- AI Suggestions -->
-        ${ai.topSuggestions && ai.topSuggestions.length > 0
-			? `
-        <div class="suggestions-panel fade-in">
-            <div class="panel-title">✦ AI Recommendations</div>
-            ${ai.topSuggestions
-				.map(
-					(s, i) => `
-            <div class="suggestion-item">
-                <div class="suggestion-num">${i + 1}</div>
-                <div class="suggestion-text">${esc(s)}</div>
-            </div>`,
-				)
-				.join("")}
-        </div>`
-			: ""
-		}
+        ${renderAiSuggestions(ai)}
 
         <!-- Audit Findings -->
         <div class="findings-panel fade-in">

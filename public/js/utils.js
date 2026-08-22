@@ -88,6 +88,16 @@ function toggleFix(id) {
 	toggle.classList.toggle("open", !isOpen);
 }
 
+// ── Source (where in the code) drawer toggle ──────────────────────────────────
+function toggleSource(id) {
+	const drawer = document.getElementById("src-" + id);
+	const toggle = document.getElementById("src-tog-" + id);
+	if (!drawer || !toggle) return;
+	const isOpen = drawer.classList.contains("open");
+	drawer.classList.toggle("open", !isOpen);
+	toggle.classList.toggle("open", !isOpen);
+}
+
 // ── Copy code to clipboard ────────────────────────────────────────────────────
 function copyCode(id) {
 	const pre = document.getElementById("code-" + id);
