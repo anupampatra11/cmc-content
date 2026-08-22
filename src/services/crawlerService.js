@@ -94,6 +94,27 @@ async function crawl(url) {
   const dateModified = extractMeta($, ['article:modified_time', 'dateModified']);
   const daysSinceLastUpdate = computeDaysSinceUpdate(dateModified, datePublished);
 
+  // Extract HTML snippets for audit display (before DOM modification)
+  const titleHtml = $.html($('title').first()) || '';
+  const metaDescHtml = $.html($('meta[name="description"]').first()) ||
+    $.html($('meta[property="og:description"]').first()) || '';
+  const h1Html = $('h1').map((_, el) => $.html(el)).get().join('\n') || '';
+  const h2Html = $('h2').slice(0, 3).map((_, el) => $.html(el)).get().join('\n') || '';
+  const canonicalHtml = $.html($('link[rel="canonical"]').first()) || '';
+  const schemaHtml = $('script[type="application/ld+json"]').slice(0, 2)
+    .map((_, el) => $.html(el)).get().join('\n\n') || '';
+  const authorMetaHtml = $.html($('meta[name="author"]').first()) || '';
+  const dateMetas = [];
+  ['article:published_time', 'article:modified_time'].forEach(prop => {
+    const el = $(`meta[property="${prop}"]`).first();
+    if (el.length) dateMetas.push($.html(el));
+  });
+  ['datePublished', 'dateModified'].forEach(name => {
+    const el = $(`meta[name="${name}"]`).first();
+    if (el.length) dateMetas.push($.html(el));
+  });
+  const dateMetaHtml = dateMetas.join('\n') || '';
+
   // Remove nav/header/footer/script/style before body text extraction
   $('nav, footer, script, style, header').remove();
 
@@ -124,6 +145,8 @@ async function crawl(url) {
     quotationCount, headingCount, listCount, avgChunkSize, technicalTermCount,
     baseDomain,
     bodyText: bodyText.length > 2000 ? bodyText.substring(0, 2000) : bodyText,
+    titleHtml, metaDescHtml, h1Html, h2Html, canonicalHtml,
+    schemaHtml, authorMetaHtml, dateMetaHtml,
   };
 }
 

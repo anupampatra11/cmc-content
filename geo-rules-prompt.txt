@@ -43,7 +43,13 @@ OUTPUT SCHEMA
     "engagement": number,
     "trustworthiness": number
   },
-  "top_suggestions": ["<specific actionable fix 1>", "<specific actionable fix 2>", "<specific actionable fix 3>"],
+  "top_suggestions": [
+    {
+      "text": "<high-level summary of the fix>",
+      "howToFix": "<specific step-by-step implementation instructions, 2-4 sentences>",
+      "codeExample": "<concrete HTML or JSON-LD snippet showing exactly how to implement the fix>"
+    }
+  ],
   "geo_summary": "<one sentence: the single biggest GEO gap on this page>"
 }
 
@@ -445,7 +451,10 @@ IMPORTANT:
 - Derive all input metrics from the content itself
 - Use best-effort estimation when precise counting is not possible
 - Ensure all numeric outputs are realistic and internally consistent
-- top_suggestions must be 3 specific, actionable improvements for GEO
+- top_suggestions must be exactly 3 objects, each with "text", "howToFix", and "codeExample" fields
+- text: one sentence summarising the improvement
+- howToFix: 2-4 sentences explaining the implementation steps
+- codeExample: a concrete HTML or JSON-LD snippet the developer can copy and paste
 - geo_summary must be one sentence identifying the single biggest GEO gap
 
 FINAL OUTPUT:

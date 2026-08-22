@@ -7,6 +7,11 @@ module.exports = {
     apiUrl: process.env.ANTHROPIC_API_URL || 'https://api.anthropic.com/v1/messages',
     model: process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001',
   },
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+    apiUrl: process.env.OPENAI_API_URL || 'https://api.openai.com/v1/chat/completions',
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  },
   scanner: {
     maxPages: parseInt(process.env.MAX_PAGES || '20', 10),
     connectTimeoutMs: parseInt(process.env.CONNECT_TIMEOUT_MS || '10000', 10),
