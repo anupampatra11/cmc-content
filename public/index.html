@@ -55,6 +55,18 @@
             </div>
             <div id="inputError" class="input-error"></div>
 
+            <div class="ai-provider-select">
+                <span class="provider-label">AI analysis:</span>
+                <label class="provider-toggle">
+                    <input type="checkbox" id="useClaude" checked />
+                    <span class="provider-chip claude-chip">Claude</span>
+                </label>
+                <label class="provider-toggle">
+                    <input type="checkbox" id="useOpenAI" checked />
+                    <span class="provider-chip openai-chip">OpenAI</span>
+                </label>
+            </div>
+
             <div class="hero-features">
                 <span class="feature-pill">13 audit rules</span>
                 <span class="feature-pill">SEO + GEO scoring</span>
@@ -76,6 +88,7 @@
                 </div>
             </div>
             <div class="progress-count" id="progressCount"></div>
+            <button class="cancel-scan-btn" onclick="cancelScan()">Cancel scan</button>
         </div>
     </section>
 

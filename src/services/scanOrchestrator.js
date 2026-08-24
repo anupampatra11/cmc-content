@@ -98,7 +98,7 @@ function updateAverages(result) {
   result.avgCombined = Math.round(completed.reduce((s, p) => s + p.scores.combined, 0) / completed.length);
 }
 
-async function scanPage(url) {
+async function scanPage(url, providers) {
   const audit = { url, status: 'pending', title: null, slug: null, checks: [], scores: null, aiScores: null, errorMessage: null };
 
   try {
@@ -109,9 +109,12 @@ async function scanPage(url) {
     const checks = seoRuleEngine.runChecks(data);
     audit.checks = checks;
 
+    const useClaude = providers.includes('claude');
+    const useOpenai = providers.includes('openai');
+
     const [claudeResult, openaiResult] = await Promise.allSettled([
-      anthropicService.analyse(data),
-      openaiService.analyse(data),
+      useClaude ? anthropicService.analyse(data) : Promise.resolve(null),
+      useOpenai ? openaiService.analyse(data) : Promise.resolve(null),
     ]);
     const claudeScores = claudeResult.status === 'fulfilled' ? claudeResult.value : null;
     const openaiScores = openaiResult.status === 'fulfilled' ? openaiResult.value : null;
@@ -133,7 +136,7 @@ async function scanPage(url) {
   return audit;
 }
 
-async function runScanAsync(scanId, url) {
+async function runScanAsync(scanId, url, providers) {
   const result = scanStore.get(scanId);
   try {
     result.progressLabel = 'Fetching sitemap\u2026';
@@ -142,18 +145,22 @@ async function runScanAsync(scanId, url) {
     result.progressLabel = `Found ${urls.length} pages \u2014 scanning\u2026`;
 
     for (let i = 0; i < urls.length; i++) {
+      if (result.cancelled) break;
+
       const pageUrl = urls[i];
       result.progressLabel = `Scanning ${extractPath(pageUrl)} (${i + 1}/${urls.length})`;
 
-      const audit = await scanPage(pageUrl);
+      const audit = await scanPage(pageUrl, providers);
       result.pages.push(audit);
       result.scannedPages = result.pages.length;
       updateAverages(result);
     }
 
-    result.status = 'complete';
-    result.progressLabel = `Scan complete \u2014 ${urls.length} pages analysed`;
-    updateAverages(result);
+    if (!result.cancelled) {
+      result.status = 'complete';
+      result.progressLabel = `Scan complete \u2014 ${urls.length} pages analysed`;
+      updateAverages(result);
+    }
   } catch (err) {
     console.error(`Scan failed for ${url}: ${err.message}`);
     result.status = 'error';
@@ -162,8 +169,9 @@ async function runScanAsync(scanId, url) {
   }
 }
 
-function startScan(url) {
+function startScan(url, providers) {
   const scanId = generateScanId();
+  const activeProviders = providers || ['claude', 'openai'];
 
   const result = {
     id: scanId,
@@ -177,18 +185,28 @@ function startScan(url) {
     avgGeo: 0,
     avgCombined: 0,
     errorMessage: null,
+    cancelled: false,
   };
 
   scanStore.set(scanId, result);
 
   // Run async without blocking — fire and forget
-  setImmediate(() => runScanAsync(scanId, url));
+  setImmediate(() => runScanAsync(scanId, url, activeProviders));
 
   return scanId;
+}
+
+function cancelScan(scanId) {
+  const result = scanStore.get(scanId);
+  if (result) {
+    result.cancelled = true;
+    result.status = 'cancelled';
+    result.progressLabel = 'Scan cancelled';
+  }
 }
 
 function getResult(scanId) {
   return scanStore.get(scanId) || null;
 }
 
-module.exports = { startScan, getResult };
+module.exports = { startScan, cancelScan, getResult };

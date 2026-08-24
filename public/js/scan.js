@@ -19,6 +19,14 @@ async function startScan() {
 		return;
 	}
 
+	const providers = [];
+	if (document.getElementById("useClaude")?.checked) providers.push("claude");
+	if (document.getElementById("useOpenAI")?.checked) providers.push("openai");
+	if (providers.length === 0) {
+		errorEl.textContent = "Please select at least one AI provider.";
+		return;
+	}
+
 	document.getElementById("scanBtn").disabled = true;
 	showSection("progressSection");
 
@@ -26,7 +34,7 @@ async function startScan() {
 		const res = await fetch("/api/scan", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ url }),
+			body: JSON.stringify({ url, providers }),
 		});
 		const data = await res.json();
 		if (!res.ok) {
@@ -36,8 +44,20 @@ async function startScan() {
 		currentScanId = data.scanId;
 		startPolling();
 	} catch (e) {
-		showError("Could not reach the server. Is Spring running on port 8080?");
+		showError("Could not reach the server.");
 	}
+}
+
+// ── Cancel scan ───────────────────────────────────────────────────────────────
+async function cancelScan() {
+	if (!currentScanId) { resetScan(); return; }
+	try {
+		await fetch(`/api/scan/${currentScanId}/cancel`, { method: "POST" });
+	} catch (e) {
+		// best effort
+	}
+	clearInterval(pollInterval);
+	resetScan();
 }
 
 // ── Polling ───────────────────────────────────────────────────────────────────

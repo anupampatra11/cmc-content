@@ -230,6 +230,76 @@ body {
     min-height: 18px;
 }
 
+/* ── AI provider selector ─────────────────────────────────────────────────── */
+.ai-provider-select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    justify-content: center;
+}
+.provider-label {
+    font-size: 12px;
+    color: var(--text-4);
+}
+.provider-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+.provider-toggle input {
+    display: none;
+}
+.provider-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    opacity: 0.35;
+}
+.provider-toggle input:checked + .provider-chip {
+    opacity: 1;
+}
+.claude-chip {
+    background: rgba(196,181,253,0.1);
+    border-color: rgba(196,181,253,0.3);
+    color: #c4b5fd;
+}
+.provider-toggle input:checked + .claude-chip {
+    background: rgba(196,181,253,0.18);
+    border-color: #c4b5fd;
+}
+.openai-chip {
+    background: rgba(110,200,120,0.1);
+    border-color: rgba(110,200,120,0.3);
+    color: #6ec878;
+}
+.provider-toggle input:checked + .openai-chip {
+    background: rgba(110,200,120,0.18);
+    border-color: #6ec878;
+}
+
+/* ── Cancel scan button ───────────────────────────────────────────────────── */
+.cancel-scan-btn {
+    margin-top: 24px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-4);
+    padding: 8px 24px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+}
+.cancel-scan-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
 .hero-features {
     display: flex;
     justify-content: center;
