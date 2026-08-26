@@ -3,7 +3,7 @@ const router = express.Router();
 const orchestrator = require('../services/scanOrchestrator');
 
 router.post('/scan', (req, res) => {
-  let { url } = req.body;
+  let { url, providers } = req.body;
   if (!url || !url.trim()) {
     return res.status(400).json({ error: 'URL is required' });
   }
@@ -19,8 +19,17 @@ router.post('/scan', (req, res) => {
     return res.status(400).json({ error: `Invalid URL: ${url}` });
   }
 
-  const scanId = orchestrator.startScan(url);
+  const activeProviders = Array.isArray(providers) && providers.length > 0
+    ? providers.filter(p => ['claude', 'openai'].includes(p))
+    : ['claude', 'openai'];
+
+  const scanId = orchestrator.startScan(url, activeProviders);
   res.json({ scanId });
+});
+
+router.post('/scan/:scanId/cancel', (req, res) => {
+  orchestrator.cancelScan(req.params.scanId);
+  res.json({ ok: true });
 });
 
 router.get('/scan/:scanId', (req, res) => {
