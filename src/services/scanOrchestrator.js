@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const config = require('../config');
 const sitemapService = require('./sitemapService');
 const crawlerService = require('./crawlerService');
 const seoRuleEngine = require('./seoRuleEngine');
@@ -144,17 +145,26 @@ async function runScanAsync(scanId, url, providers) {
     result.totalPages = urls.length;
     result.progressLabel = `Found ${urls.length} pages \u2014 scanning\u2026`;
 
-    for (let i = 0; i < urls.length; i++) {
-      if (result.cancelled) break;
+    const concurrency = config.scanner.concurrency;
+    let nextIndex = 0;
 
-      const pageUrl = urls[i];
-      result.progressLabel = `Scanning ${extractPath(pageUrl)} (${i + 1}/${urls.length})`;
+    async function worker() {
+      while (true) {
+        if (result.cancelled) break;
+        const idx = nextIndex++;
+        if (idx >= urls.length) break;
 
-      const audit = await scanPage(pageUrl, providers);
-      result.pages.push(audit);
-      result.scannedPages = result.pages.length;
-      updateAverages(result);
+        const pageUrl = urls[idx];
+        result.progressLabel = `Scanning ${extractPath(pageUrl)} (${result.scannedPages + 1}/${urls.length})`;
+
+        const audit = await scanPage(pageUrl, providers);
+        result.pages.push(audit);
+        result.scannedPages = result.pages.length;
+        updateAverages(result);
+      }
     }
+
+    await Promise.all(Array.from({ length: concurrency }, worker));
 
     if (!result.cancelled) {
       result.status = 'complete';
