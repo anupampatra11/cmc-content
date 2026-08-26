@@ -14,6 +14,7 @@ module.exports = {
   },
   scanner: {
     maxPages: parseInt(process.env.MAX_PAGES || '20', 10),
+    concurrency: parseInt(process.env.SCAN_CONCURRENCY || '3', 10),
     connectTimeoutMs: parseInt(process.env.CONNECT_TIMEOUT_MS || '10000', 10),
     readTimeoutMs: parseInt(process.env.READ_TIMEOUT_MS || '15000', 10),
     userAgent: process.env.USER_AGENT ||
