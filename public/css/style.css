@@ -313,6 +313,10 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    text-decoration: none;
+}
+a.feature-pill:hover {
+    color: var(--text-2);
 }
 .feature-pill::before {
     content: "";
