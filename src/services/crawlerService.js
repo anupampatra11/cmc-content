@@ -338,7 +338,7 @@ function extractMeta($, names) {
     }
     // Try JSON-LD
     const key = names[names.length - 1];
-    const p = new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`);
+    const p = new RegExp(String.raw`"${key}"\s*:\s*"([^"]+)"`);
     let found = "";
     $('script[type="application/ld+json"]').each((_, el) => {
         if (found) return;
@@ -354,7 +354,7 @@ function computeDaysSinceUpdate(dateModified, datePublished) {
     if (!dateStr || dateStr.length < 10) return null;
     try {
         const date = new Date(dateStr.substring(0, 10));
-        if (isNaN(date.getTime())) return null;
+        if (Number.isNaN(date.getTime())) return null;
         const now = new Date();
         return Math.floor((now - date) / (1000 * 60 * 60 * 24));
     } catch {

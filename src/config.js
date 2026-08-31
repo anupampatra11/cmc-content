@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 module.exports = {
-    port: parseInt(process.env.PORT || "8080", 10),
+    port: Number.parseInt(process.env.PORT || "8080", 10),
     anthropic: {
         apiKey: process.env.ANTHROPIC_API_KEY || "",
         apiUrl:
@@ -17,13 +17,13 @@ module.exports = {
         model: process.env.OPENAI_MODEL || "gpt-4o-mini",
     },
     scanner: {
-        maxPages: parseInt(process.env.MAX_PAGES || "20", 10),
-        concurrency: parseInt(process.env.SCAN_CONCURRENCY || "3", 10),
-        connectTimeoutMs: parseInt(
+        maxPages: Number.parseInt(process.env.MAX_PAGES || "20", 10),
+        concurrency: Number.parseInt(process.env.SCAN_CONCURRENCY || "3", 10),
+        connectTimeoutMs: Number.parseInt(
             process.env.CONNECT_TIMEOUT_MS || "10000",
             10,
         ),
-        readTimeoutMs: parseInt(process.env.READ_TIMEOUT_MS || "15000", 10),
+        readTimeoutMs: Number.parseInt(process.env.READ_TIMEOUT_MS || "15000", 10),
         userAgent:
             process.env.USER_AGENT ||
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",

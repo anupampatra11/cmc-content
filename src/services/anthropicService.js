@@ -55,8 +55,8 @@ async function analyse(page) {
 
         let text = content[0]?.text || "";
         text = text
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
+            .replaceAll('```json', "")
+            .replaceAll('```', "")
             .trim();
 
         const start = text.indexOf("{");
