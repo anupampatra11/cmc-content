@@ -87,17 +87,17 @@ function checkRow(check, passing) {
 
 // ── AI signal card ────────────────────────────────────────────────────────────
 function signalCard(label, value, max) {
-    const pct = value > 0 ? Math.round((value / max) * 100) : 0;
-    const col = pct >= 70 ? "#22C55E" : pct >= 50 ? "#F59E0B" : "#EF4444";
-    const display = max === 1 ? pct + "%" : (value || 0) + "/" + max;
+    const percentage = value > 0 ? Math.round((value / max) * 100) : 0;
+    const color = scoreColor(percentage);
+    const display = max === 1 ? percentage + "%" : (value || 0) + "/" + max;
     return `
     <div class="signal-card">
         <div class="signal-top">
             <span class="signal-name">${label}</span>
-            <span class="signal-value" style="color:${col}">${display}</span>
+            <span class="signal-value" style="color:${color}">${display}</span>
         </div>
         <div class="signal-bar-bg">
-            <div class="signal-bar-fill" style="width:${pct}%;background:${col}"></div>
+            <div class="signal-bar-fill" style="width:${percentage}%;background:${color}"></div>
         </div>
     </div>`;
 }

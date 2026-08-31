@@ -47,19 +47,22 @@ function runChecks(page) {
     // 1. Title tag
     const titleLen = safe(page.title).length;
     const titlePass = titleLen >= 30 && titleLen <= 60;
+
+    let titleDetail;
+    if (titleLen === 0) titleDetail = "Missing title tag";
+    else if (titleLen < 30)
+        titleDetail = `Too short (${titleLen} chars, min 30)`;
+    else if (titleLen > 60)
+        titleDetail = `Too long (${titleLen} chars, max 60)`;
+    else titleDetail = `Good length (${titleLen} chars)`;
+
     checks.push(
         check(
             "title",
             "On-page",
             "Title tag (30\u201360 chars)",
             titlePass,
-            titleLen === 0
-                ? "Missing title tag"
-                : titleLen < 30
-                  ? `Too short (${titleLen} chars, min 30)`
-                  : titleLen > 60
-                    ? `Too long (${titleLen} chars, max 60)`
-                    : `Good length (${titleLen} chars)`,
+            titleDetail,
             8,
             "Add or update the <title> tag in your <head>. Aim for 30\u201360 characters with your primary keyword near the front.",
             "<head>\n  <title>Running Shoes for Men & Women | ASICS Netherlands</title>\n</head>",
@@ -70,19 +73,21 @@ function runChecks(page) {
     // 2. Meta description
     const metaLen = safe(page.metaDescription).length;
     const metaPass = metaLen >= 120 && metaLen <= 160;
+
+    let metaDetail;
+    if (metaLen === 0) metaDetail = "Missing meta description";
+    else if (metaLen < 120)
+        metaDetail = `Too short (${metaLen} chars, min 120)`;
+    else if (metaLen > 160) metaDetail = `Too long (${metaLen} chars, max 160)`;
+    else metaDetail = `Good length (${metaLen} chars)`;
+
     checks.push(
         check(
             "meta",
             "On-page",
             "Meta description (120\u2013160 chars)",
             metaPass,
-            metaLen === 0
-                ? "Missing meta description"
-                : metaLen < 120
-                  ? `Too short (${metaLen} chars, min 120)`
-                  : metaLen > 160
-                    ? `Too long (${metaLen} chars, max 160)`
-                    : `Good length (${metaLen} chars)`,
+            metaDetail,
             6,
             'Add a <meta name="description"> tag in your <head>. Write a compelling 120\u2013160 character summary including your primary keyword.',
             '<head>\n  <meta name="description" content="Shop ASICS running shoes and sportswear in the Netherlands. Free delivery on orders over 35 euros. Official ASICS webshop with the full collection." />\n</head>',
@@ -93,17 +98,20 @@ function runChecks(page) {
     // 3. Single H1
     const h1Count = page.h1s ? page.h1s.length : 0;
     const h1Pass = h1Count === 1;
+
+    let h1Detail;
+    if (h1Count === 0) h1Detail = "No H1 found \u2014 critical for SEO";
+    else if (h1Count > 1)
+        h1Detail = `Multiple H1s (${h1Count}) \u2014 keep exactly one`;
+    else h1Detail = `H1 present: "${truncate(page.h1s[0], 60)}"`;
+
     checks.push(
         check(
             "h1",
             "On-page",
             "Single H1 tag",
             h1Pass,
-            h1Count === 0
-                ? "No H1 found \u2014 critical for SEO"
-                : h1Count > 1
-                  ? `Multiple H1s (${h1Count}) \u2014 keep exactly one`
-                  : `H1 present: "${truncate(page.h1s[0], 60)}"`,
+            h1Detail,
             6,
             h1Count === 0
                 ? "Add exactly one H1 tag describing the page topic. Include your primary keyword."
@@ -118,17 +126,21 @@ function runChecks(page) {
     // 4. Heading structure
     const h2Count = page.h2s ? page.h2s.length : 0;
     const headingsPass = h2Count >= 2;
+
+    let h2Detail;
+    if (h2Count === 0)
+        h2Detail = "No H2 headings \u2014 structure content with subheadings";
+    else if (h2Count === 1)
+        h2Detail = "Only 1 H2 \u2014 add more subheadings for better structure";
+    else h2Detail = `${h2Count} H2 headings found`;
+
     checks.push(
         check(
             "headings",
             "On-page",
             "H2 heading structure",
             headingsPass,
-            h2Count === 0
-                ? "No H2 headings \u2014 structure content with subheadings"
-                : h2Count === 1
-                  ? "Only 1 H2 \u2014 add more subheadings for better structure"
-                  : `${h2Count} H2 headings found`,
+            h2Detail,
             5,
             "Break your content into sections using H2 subheadings. Each major topic should have its own H2.",
             "<h1>Running Shoes Guide</h1>\n<h2>How to Choose the Right Running Shoe</h2>\n<p>Content...</p>\n<h2>Road vs Trail Running Shoes</h2>\n<p>Content...</p>\n<h2>Finding Your Correct Shoe Size</h2>\n<p>Content...</p>",
@@ -138,12 +150,14 @@ function runChecks(page) {
 
     // 5. Image alt text
     const altsPass = page.imageCount === 0 || page.missingAltCount === 0;
-    const altsDetail =
-        page.imageCount === 0
-            ? "No images found on this page"
-            : page.missingAltCount === 0
-              ? `All ${page.imageCount} images have alt text`
-              : `${page.missingAltCount} of ${page.imageCount} images missing alt text`;
+
+    let altsDetail;
+    if (page.imageCount === 0) altsDetail = "No images found on this page";
+    else if (page.missingAltCount === 0)
+        altsDetail = `All ${page.imageCount} images have alt text`;
+    else
+        altsDetail = `${page.missingAltCount} of ${page.imageCount} images missing alt text`;
+
     checks.push(
         check(
             "alts",
@@ -266,15 +280,22 @@ function runChecks(page) {
 
     // 12. Publish / update date
     const hasDate = !!safe(page.datePublished) || !!safe(page.dateModified);
+
+    let publishedDetail;
+    if (hasDate) {
+        publishedDetail = `Published: ${safe(page.datePublished)}`;
+        if (page.dateModified)
+            publishedDetail += ` | Modified: ${page.dateModified}`;
+    }
+    else publishedDetail = "No publish date \u2014 AI engines deprioritise undated content";
+
     checks.push(
         check(
             "date",
             "GEO / E-E-A-T",
             "Publish / update date",
             hasDate,
-            hasDate
-                ? `Published: ${safe(page.datePublished)}${safe(page.dateModified) ? ` | Modified: ${page.dateModified}` : ""}`
-                : "No publish date \u2014 AI engines deprioritise undated content",
+            publishedDetail,
             7,
             "Add publish and last-modified dates to your page metadata and JSON-LD. AI engines use freshness as a trust signal \u2014 undated content is often skipped.",
             '<!-- Open Graph date tags -->\n<meta property="article:published_time" content="2025-01-15T09:00:00+01:00" />\n<meta property="article:modified_time" content="2025-05-10T14:30:00+01:00" />\n\n<!-- JSON-LD dates -->\n<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Article",\n  "datePublished": "2025-01-15",\n  "dateModified": "2025-05-10"\n}\n</script>\n\n<!-- Visible date -->\n<time datetime="2025-05-10">Last updated: 10 May 2025</time>',
@@ -283,8 +304,9 @@ function runChecks(page) {
     );
 
     // 13. FAQ schema
-    const hasFaq =
-        page.schemaTypes?.some((s) => s.toLowerCase().includes("faq"));
+    const hasFaq = page.schemaTypes?.some((s) =>
+        s.toLowerCase().includes("faq"),
+    );
     checks.push(
         check(
             "faq",

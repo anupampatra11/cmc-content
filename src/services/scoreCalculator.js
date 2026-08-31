@@ -51,14 +51,12 @@ function calcObjectiveGeoScore(page) {
             : clamp(page.technicalTermCount / page.totalWords / 0.1);
 
     // freshness (10%)
-    const freshness =
-        page.daysSinceLastUpdate == null
-            ? 0.4
-            : page.daysSinceLastUpdate < 30
-              ? 1.0
-              : page.daysSinceLastUpdate < 180
-                ? 0.7
-                : 0.4;
+    let freshness = 0.4; 
+
+    if (page.daysSinceLastUpdate != null && page.daysSinceLastUpdate < 30)
+        freshness = 1.0;
+    else if (page.daysSinceLastUpdate != null && page.daysSinceLastUpdate < 180)
+        freshness = 0.7;
 
     return (
         0.2 * structuredData +
