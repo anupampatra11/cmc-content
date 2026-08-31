@@ -45,6 +45,7 @@ async function startScan() {
         startPolling();
     } catch (e) {
         showError("Could not reach the server.");
+		console.log(`Could not reach the server: ${e}`);
     }
 }
 
