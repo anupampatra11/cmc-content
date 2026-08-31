@@ -1,12 +1,12 @@
 // ── Score ring SVG ────────────────────────────────────────────────────────────
 function scoreRing(score, label, size) {
-	const radius = size * 0.38;
-	const circle = 2 * Math.PI * radius;
-	const dash = (Math.min(100, score) / 100) * circle;
-	const color = scoreColor(score);
-	const band = scoreBand(score);
+    const radius = size * 0.38;
+    const circle = 2 * Math.PI * radius;
+    const dash = (Math.min(100, score) / 100) * circle;
+    const color = scoreColor(score);
+    const band = scoreBand(score);
 
-	return `
+    return `
     <div class="score-ring-wrap">
         <div class="score-ring-visual" width=${size} height=${size}>
             <svg width="${size}" height="${size}">
@@ -25,51 +25,51 @@ function scoreRing(score, label, size) {
 
 // ── Audit check row ───────────────────────────────────────────────────────────
 function checkRow(check, passing) {
-	const iconSvg = passing
-		? `<svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M1.5 6l3 3 6-6" stroke="#22C55E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-		: `<svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+    const iconSvg = passing
+        ? `<svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M1.5 6l3 3 6-6" stroke="#22C55E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        : `<svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"/></svg>`;
 
-	const uid = check.id + "-" + Math.random().toString(36).slice(2, 7);
-	const hasFix = !passing && check.howToFix;
+    const uid = check.id + "-" + Math.random().toString(36).slice(2, 7);
+    const hasFix = !passing && check.howToFix;
 
-	const checkCodeExample = check.codeExample
-		? `
+    const checkCodeExample = check.codeExample
+        ? `
 		<div class="fix-code-wrap">
 			<pre class="fix-code" id="code-${uid}">${esc(check.codeExample)}</pre>
 			<button class="copy-btn" id="copy-${uid}" onclick="copyCode('${uid}')">Copy</button>
 		</div>`
-		: "";
+        : "";
 
-	const fixBtn = hasFix
-		? `<button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
+    const fixBtn = hasFix
+        ? `<button class="fix-toggle" id="tog-${uid}" onclick="toggleFix('${uid}')">
             <span class="arrow">▶</span> How to fix
         </button>`
-		: "";
-	const fixDrawer = hasFix
-		? `<div class="fix-drawer" id="fix-${uid}">
+        : "";
+    const fixDrawer = hasFix
+        ? `<div class="fix-drawer" id="fix-${uid}">
             <div class="fix-how">
                 <strong>What to do</strong>
                 ${esc(check.howToFix)}
             </div>
             ${checkCodeExample}
         </div>`
-		: "";
+        : "";
 
-	const sourceBtn = check.currentHtml
-		? `<button class="source-toggle" id="src-tog-${uid}" onclick="toggleSource('${uid}')">
+    const sourceBtn = check.currentHtml
+        ? `<button class="source-toggle" id="src-tog-${uid}" onclick="toggleSource('${uid}')">
             <span class="arrow">▶</span> Where in the code
         </button>`
-		: "";
-	const sourceDrawer = check.currentHtml
-		? `<div class="source-drawer" id="src-${uid}">
+        : "";
+    const sourceDrawer = check.currentHtml
+        ? `<div class="source-drawer" id="src-${uid}">
             <div class="fix-code-wrap">
                 <pre class="fix-code" id="code-src-${uid}">${esc(check.currentHtml)}</pre>
                 <button class="copy-btn" id="copy-src-${uid}" onclick="copyCode('src-${uid}')">Copy</button>
             </div>
         </div>`
-		: "";
+        : "";
 
-	return `
+    return `
     <div class="check-row">
         <div class="check-icon ${passing ? "pass" : "fail"}">${iconSvg}</div>
         <div class="check-content">
@@ -87,10 +87,10 @@ function checkRow(check, passing) {
 
 // ── AI signal card ────────────────────────────────────────────────────────────
 function signalCard(label, value, max) {
-	const pct = value > 0 ? Math.round((value / max) * 100) : 0;
-	const col = pct >= 70 ? "#22C55E" : pct >= 50 ? "#F59E0B" : "#EF4444";
-	const display = max === 1 ? pct + "%" : (value || 0) + "/" + max;
-	return `
+    const pct = value > 0 ? Math.round((value / max) * 100) : 0;
+    const col = pct >= 70 ? "#22C55E" : pct >= 50 ? "#F59E0B" : "#EF4444";
+    const display = max === 1 ? pct + "%" : (value || 0) + "/" + max;
+    return `
     <div class="signal-card">
         <div class="signal-top">
             <span class="signal-name">${label}</span>
