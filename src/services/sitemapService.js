@@ -33,7 +33,7 @@ async function tryFetchSitemap(sitemapUrl, maxPages) {
 
         // Handle sitemap index
         const sitemapIndex = parsed.sitemapindex;
-        if (sitemapIndex && sitemapIndex.sitemap) {
+        if (sitemapIndex?.sitemap) {
             const sitemaps = Array.isArray(sitemapIndex.sitemap)
                 ? sitemapIndex.sitemap
                 : [sitemapIndex.sitemap];
@@ -47,7 +47,7 @@ async function tryFetchSitemap(sitemapUrl, maxPages) {
 
         // Handle regular sitemap
         const urlset = parsed.urlset;
-        if (urlset && urlset.url) {
+        if (urlset?.url) {
             const entries = Array.isArray(urlset.url)
                 ? urlset.url
                 : [urlset.url];

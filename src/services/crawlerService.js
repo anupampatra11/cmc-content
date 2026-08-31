@@ -298,7 +298,7 @@ function extractAuthor($) {
         const content =
             $(`meta[name="${attr}"]`).attr("content") ||
             $(`meta[property="${attr}"]`).attr("content");
-        if (content && content.trim()) return content.trim();
+        if (content?.trim()) return content.trim();
     }
 
     // Try JSON-LD
@@ -350,7 +350,7 @@ function extractMeta($, names) {
 
 function computeDaysSinceUpdate(dateModified, datePublished) {
     const dateStr =
-        dateModified && dateModified.trim() ? dateModified : datePublished;
+        dateModified?.trim() ? dateModified : datePublished;
     if (!dateStr || dateStr.length < 10) return null;
     try {
         const date = new Date(dateStr.substring(0, 10));

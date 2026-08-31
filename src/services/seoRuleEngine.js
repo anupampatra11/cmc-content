@@ -284,8 +284,7 @@ function runChecks(page) {
 
     // 13. FAQ schema
     const hasFaq =
-        page.schemaTypes &&
-        page.schemaTypes.some((s) => s.toLowerCase().includes("faq"));
+        page.schemaTypes?.some((s) => s.toLowerCase().includes("faq"));
     checks.push(
         check(
             "faq",
