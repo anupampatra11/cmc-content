@@ -8,27 +8,48 @@
 }
 
 :root {
+    /* Background colors */ 
     --bg: #020817;
     --bg-2: #0b1220;
     --bg-3: #0f172a;
     --bg-4: #1e293b;
+
+    /* Border colors */ 
     --border: #1e293b;
     --border-2: #334155;
+
+    /* Text colors */ 
     --text-1: #f1f5f9;
     --text-2: #cbd5e1;
     --text-3: #94a3b8;
     --text-4: #64748b;
     --text-5: #475569;
+
+    /* Accent colors */ 
     --accent: #6366f1;
     --accent-2: #7c3aed;
+
+    /* General colors */ 
     --green: #22c55e;
     --amber: #f59e0b;
     --red: #ef4444;
     --blue: #3b82f6;
     --orange: #f97316;
     --cyan: #06b6d4;
+
+    /* Fonts */ 
     --font: "DM Sans", "Helvetica Neue", sans-serif;
     --mono: "DM Mono", "Courier New", monospace;
+
+    /* Text sizes */ 
+    --size-xs: 12px;
+    --size-sm: 14px;
+    --size-md: 16px;
+    --size-lg: 18px;
+    --size-xl: 20px;
+    --size-xxl: 24px;
+
+    /* Radius sizes */ 
     --radius: 10px;
     --radius-sm: 6px;
     --radius-lg: 14px;
@@ -42,7 +63,7 @@ body {
     background: var(--bg);
     color: var(--text-2);
     font-family: var(--font);
-    font-size: 14px;
+    font-size: var(--size-md);
     line-height: 1.5;
     min-height: 100vh;
 }
@@ -99,12 +120,12 @@ body {
 }
 .logo-text {
     font-weight: 700;
-    font-size: 15px;
+    font-size: var(--size-md);
     color: var(--text-1);
     letter-spacing: -0.02em;
 }
 .logo-badge {
-    font-size: 10px;
+    font-size: var(--size-xs);
     font-weight: 600;
     letter-spacing: 0.06em;
     background: var(--bg-4);
@@ -113,8 +134,8 @@ body {
     border-radius: 20px;
 }
 .header-sub {
-    font-size: 12px;
     color: var(--text-5);
+    font-size: var(--size-md);
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
@@ -127,7 +148,7 @@ body {
     margin: 0 auto;
 }
 .hero-eyebrow {
-    font-size: 11px;
+    font-size: var(--size-xs);
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -149,7 +170,7 @@ body {
     background-clip: text;
 }
 .hero-sub {
-    font-size: 16px;
+    font-size: var(--size-lg);
     color: var(--text-3);
     line-height: 1.65;
     margin-bottom: 40px;
@@ -179,7 +200,7 @@ body {
     border: 1px solid var(--border-2);
     border-radius: var(--radius);
     padding: 14px 18px;
-    font-size: 15px;
+    font-size: var(--size-md);
     color: var(--text-1);
     font-family: var(--font);
     transition:
@@ -202,7 +223,7 @@ body {
     padding: 14px 24px;
     color: white;
     font-weight: 600;
-    font-size: 15px;
+    font-size: var(--size-md);
     cursor: pointer;
     font-family: var(--font);
     white-space: nowrap;
@@ -225,7 +246,7 @@ body {
 
 .input-error {
     color: var(--red);
-    font-size: 13px;
+    font-size: var(--size-sm);
     margin-top: 10px;
     min-height: 18px;
 }
@@ -239,7 +260,7 @@ body {
     justify-content: center;
 }
 .provider-label {
-    font-size: 12px;
+    font-size: var(--size-sm);
     color: var(--text-4);
 }
 .provider-toggle {
@@ -252,7 +273,7 @@ body {
 .provider-chip {
     display: inline-flex;
     align-items: center;
-    font-size: 12px;
+    font-size: var(--size-sm);
     font-weight: 600;
     padding: 5px 14px;
     border-radius: 20px;
@@ -290,7 +311,7 @@ body {
     color: var(--text-4);
     padding: 8px 24px;
     border-radius: var(--radius);
-    font-size: 12px;
+    font-size: var(--size-sm);
     cursor: pointer;
     font-family: var(--font);
     transition: all 0.15s;
@@ -308,7 +329,7 @@ body {
     margin-top: 44px;
 }
 .feature-pill {
-    font-size: 12px;
+    font-size: var(--size-sm);
     color: var(--text-4);
     display: flex;
     align-items: center;
@@ -341,13 +362,13 @@ a.feature-pill:hover {
     margin-bottom: 20px;
 }
 .progress-title {
-    font-size: 20px;
+    font-size: var(--size-xxl);
     font-weight: 600;
     color: var(--text-1);
     margin-bottom: 8px;
 }
 .progress-label {
-    font-size: 13px;
+    font-size: var(--size-sm);
     color: var(--text-4);
     font-family: var(--mono);
     margin-bottom: 28px;
@@ -370,7 +391,7 @@ a.feature-pill:hover {
     transition: width 0.3s ease;
 }
 .progress-count {
-    font-size: 13px;
+    font-size: var(--size-sm);
     color: var(--text-5);
 }
 
@@ -393,14 +414,14 @@ a.feature-pill:hover {
     margin-bottom: 20px;
 }
 .summary-domain {
-    font-size: 12px;
+    font-size: var(--size-sm);
     color: var(--text-5);
     font-family: var(--mono);
     margin-top: 20px;
     margin-bottom: 2px;
 }
 .summary-count {
-    font-size: 20px;
+    font-size: var(--size-xxl);
     font-weight: 700;
     color: var(--text-1);
     letter-spacing: -0.02em;
@@ -426,7 +447,7 @@ a.feature-pill:hover {
     font-family: var(--mono);
 }
 .avg-label {
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-4);
     margin-top: 2px;
 }
@@ -438,7 +459,7 @@ a.feature-pill:hover {
     padding: 10px 16px;
     color: var(--text-3);
     cursor: pointer;
-    font-size: 13px;
+    font-size: var(--size-sm);
     font-family: var(--font);
     transition:
         border-color 0.2s,
@@ -465,7 +486,7 @@ a.feature-pill:hover {
 /* Panel shared */
 .panel-header {
     padding: 11px 16px;
-    font-size: 11px;
+    font-size: var(--size-xs);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -506,7 +527,7 @@ a.feature-pill:hover {
     min-width: 0;
 }
 .page-item-title {
-    font-size: 12px;
+    font-size: var(--size-sm);
     font-weight: 500;
     color: var(--text-2);
     white-space: nowrap;
@@ -517,7 +538,7 @@ a.feature-pill:hover {
     color: var(--text-1);
 }
 .page-item-path {
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-5);
     font-family: var(--mono);
     white-space: nowrap;
@@ -526,13 +547,13 @@ a.feature-pill:hover {
     margin-top: 2px;
 }
 .page-item-score {
-    font-size: 14px;
+    font-size: var(--size-md);
     font-weight: 700;
     font-family: var(--mono);
     flex-shrink: 0;
 }
 .page-item-status {
-    font-size: 10px;
+    font-size: var(--size-xs);
     color: var(--text-5);
 }
 
@@ -549,7 +570,7 @@ a.feature-pill:hover {
     padding: 48px;
     text-align: center;
     color: var(--text-5);
-    font-size: 14px;
+    font-size: var(--size-md);
 }
 
 /* Score cards panel */
@@ -560,13 +581,13 @@ a.feature-pill:hover {
     padding: 22px 26px;
 }
 .page-detail-title {
-    font-size: 15px;
+    font-size: var(--size-md);
     font-weight: 600;
     color: var(--text-1);
     margin-bottom: 3px;
 }
 .page-detail-url {
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-5);
     font-family: var(--mono);
     margin-bottom: 22px;
@@ -605,20 +626,20 @@ a.feature-pill:hover {
     line-height: 1;
 
     .score-number {
-        font-size: 24px;
+        font-size: var(--size-xxl);
         font-weight: 700;
         color: #f1f5f9;
         font-family: var(--mono);
     }
     .score-text {
-        font-size: 10px;
+        font-size: var(--size-xs);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
     }
 }
 .score-ring-label {
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-4);
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -632,13 +653,13 @@ a.feature-pill:hover {
     background: var(--bg-3);
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--amber);
-    font-size: 13px;
+    font-size: var(--size-sm);
     color: var(--text-3);
     line-height: 1.5;
 }
 .geo-summary strong {
     color: var(--amber);
-    font-size: 11px;
+    font-size: var(--size-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -653,7 +674,7 @@ a.feature-pill:hover {
     padding: 16px 18px;
 }
 .panel-title {
-    font-size: 11px;
+    font-size: var(--size-sm);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -680,13 +701,13 @@ a.feature-pill:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: var(--size-xs);
     font-weight: 700;
     color: white;
     flex-shrink: 0;
 }
 .suggestion-text {
-    font-size: 13px;
+    font-size: var(--size-sm);
     color: var(--text-2);
     line-height: 1.5;
 }
@@ -712,7 +733,7 @@ a.feature-pill:hover {
     margin-top: 0;
 }
 .sugg-badge {
-    font-size: 10px;
+    font-size: var(--size-xs);
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 20px;
@@ -735,7 +756,7 @@ a.feature-pill:hover {
     color: #f59e0b;
 }
 .sugg-section-title {
-    font-size: 10px;
+    font-size: var(--size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     color: var(--text-4);
@@ -751,7 +772,7 @@ a.feature-pill:hover {
     border: none;
     cursor: pointer;
     padding: 0;
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: #f59e0b;
     font-family: var(--font);
     transition: opacity 0.15s;
@@ -760,7 +781,7 @@ a.feature-pill:hover {
     opacity: 0.75;
 }
 .source-toggle .arrow {
-    font-size: 9px;
+    font-size: var(--size-xs);
     transition: transform 0.2s;
     display: inline-block;
 }
@@ -798,7 +819,7 @@ a.feature-pill:hover {
     gap: 8px;
 }
 .count-pill {
-    font-size: 11px;
+    font-size: var(--size-sm);
     padding: 2px 9px;
     border-radius: 20px;
     font-weight: 500;
@@ -814,7 +835,7 @@ a.feature-pill:hover {
 
 .findings-section-header {
     padding: 7px 16px 4px;
-    font-size: 11px;
+    font-size: var(--size-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -871,7 +892,7 @@ a.feature-pill:hover {
     margin-bottom: 2px;
 }
 .check-label {
-    font-size: 13px;
+    font-size: var(--size-sm);
     font-weight: 500;
     color: var(--text-1);
 }
@@ -880,18 +901,18 @@ a.feature-pill:hover {
     font-weight: 400;
 }
 .check-cat {
-    font-size: 10px;
+    font-size: var(--size-xs);
     padding: 1px 7px;
     border-radius: 20px;
     font-weight: 500;
 }
 .check-weight {
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-5);
     margin-left: auto;
 }
 .check-detail {
-    font-size: 12px;
+    font-size: var(--size-sm);
     color: var(--text-3);
 }
 .check-detail.dim-detail {
@@ -924,11 +945,11 @@ a.feature-pill:hover {
     margin-bottom: 7px;
 }
 .signal-name {
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-4);
 }
 .signal-value {
-    font-size: 12px;
+    font-size: var(--size-sm);
     font-weight: 600;
     font-family: var(--mono);
 }
@@ -949,7 +970,7 @@ a.feature-pill:hover {
     background: rgba(239, 68, 68, 0.08);
     border-left: 3px solid var(--red);
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: var(--size-sm);
     color: var(--red);
     margin-bottom: 8px;
 }
@@ -1011,7 +1032,7 @@ a.feature-pill:hover {
     align-items: center;
     gap: 5px;
     margin-top: 6px;
-    font-size: 11px;
+    font-size: var(--size-xs);
     font-weight: 500;
     color: var(--accent);
     cursor: pointer;
@@ -1025,7 +1046,7 @@ a.feature-pill:hover {
     opacity: 0.75;
 }
 .fix-toggle .arrow {
-    font-size: 9px;
+    font-size: var(--size-xs);
     transition: transform 0.2s;
     display: inline-block;
 }
@@ -1047,7 +1068,7 @@ a.feature-pill:hover {
 
 .fix-how {
     padding: 10px 14px;
-    font-size: 12px;
+    font-size: var(--size-sm);
     color: var(--text-3);
     line-height: 1.6;
     border-bottom: 1px solid var(--border);
@@ -1057,7 +1078,7 @@ a.feature-pill:hover {
     font-weight: 500;
     display: block;
     margin-bottom: 4px;
-    font-size: 11px;
+    font-size: var(--size-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -1068,7 +1089,7 @@ a.feature-pill:hover {
     padding: 12px 14px;
     padding-right: 80px;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: #a5b4fc;
     line-height: 1.7;
     white-space: pre-wrap;
@@ -1082,7 +1103,7 @@ a.feature-pill:hover {
     border: 0.5px solid var(--border-2);
     border-radius: var(--radius-sm);
     padding: 4px 10px;
-    font-size: 11px;
+    font-size: var(--size-xs);
     color: var(--text-3);
     cursor: pointer;
     font-family: var(--font);
@@ -1108,7 +1129,7 @@ a.feature-pill:hover {
 .dropdown button {
     padding: 10px 16px;
     color: var(--text-3);
-    font-size: 12px;
+    font-size: var(--size-sm);
     font-family: var(--font);
     cursor: pointer;
     border-radius: var(--radius);
