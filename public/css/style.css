@@ -948,8 +948,8 @@ a.feature-pill:hover {
     margin-bottom: 7px;
 }
 .signal-name {
-    font-size: var(--size-xs);
-    color: var(--text-4);
+    font-size: var(--size-sm);
+    color: var(--text-1);
 }
 .signal-value {
     font-size: var(--size-sm);
