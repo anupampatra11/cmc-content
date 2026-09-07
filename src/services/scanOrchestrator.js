@@ -130,7 +130,7 @@ function mergeAiScores(claude, openai) {
 const scanStore = new Map();
 
 function generateScanId() {
-    return uuidv4().replaceAll('-', "").substring(0, 12);
+    return uuidv4().replaceAll("-", "").substring(0, 12);
 }
 
 function extractPath(url) {

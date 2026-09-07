@@ -721,7 +721,7 @@ a.feature-pill:hover {
 .toggle-btn-row {
     display: flex;
     gap: 12px;
-    margin-top: 8px;
+    margin-top: 6px;
     flex-wrap: wrap;
 }
 
@@ -854,7 +854,7 @@ a.feature-pill:hover {
 .check-row {
     display: flex;
     gap: 12px;
-    padding: 10px 16px;
+    padding: 16px;
     border-bottom: 1px solid var(--bg-3);
     align-items: flex-start;
     transition: background-color 0.1s;
@@ -1034,7 +1034,6 @@ a.feature-pill:hover {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    margin-top: 6px;
     font-size: var(--size-xs);
     font-weight: 500;
     color: var(--accent);
