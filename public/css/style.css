@@ -45,6 +45,7 @@
     --mono: "DM Mono", "Courier New", monospace;
 
     /* Text sizes */ 
+    --size-xxs: 11px;
     --size-xs: 12px;
     --size-sm: 14px;
     --size-md: 16px;
@@ -635,7 +636,7 @@ a.feature-pill:hover {
         font-family: var(--mono);
     }
     .score-text {
-        font-size: var(--size-xs);
+        font-size: var(--size-xxs);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;

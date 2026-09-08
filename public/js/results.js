@@ -180,9 +180,9 @@ function renderDetail(page) {
             <div class="page-detail-title">${esc(page.title || page.url)}</div>
             <div class="page-detail-url">${esc(page.url)}</div>
             <div class="score-rings">
-                ${scoreRing(scores.seo, "SEO Score", 128)}
-                ${scoreRing(scores.geo, "GEO Score", 128)}
-                ${scoreRing(scores.combined, "Velocity Score", 128)}
+                ${scoreRing(scores.seo, "SEO Score", 148)}
+                ${scoreRing(scores.geo, "GEO Score", 148)}
+                ${scoreRing(scores.combined, "Velocity Score", 148)}
             </div>
             ${
                 ai.geoSummary
