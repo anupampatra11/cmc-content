@@ -131,6 +131,15 @@ window.onclick = function (event) {
     }
 };
 
+function closeDropdown(){
+    const dropdowns = document.getElementsByClassName("dropdown-content");
+    for (const element of dropdowns) {
+        if (element.classList.contains("show-dropdown-options")) {
+            element.classList.remove("show-dropdown-options");
+        }
+    }
+};
+
 // ── Enter key on input ────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("urlInput").addEventListener("keydown", (e) => {

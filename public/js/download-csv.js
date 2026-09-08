@@ -68,6 +68,8 @@ function downloadCSV() {
     link.remove();
 
     URL.revokeObjectURL(url);
+    
+    closeDropdown();
 }
 
 function escapeCSVValue(value) {

@@ -205,4 +205,6 @@ function downloadPdf() {
     }
 
     pdf.save("Content-velocity-scanner_Report.pdf");
+
+    closeDropdown();
 }
