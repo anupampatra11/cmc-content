@@ -47,6 +47,11 @@
     --font: "DM Sans", "Helvetica Neue", sans-serif;
     --mono: "DM Mono", "Courier New", monospace;
 
+    /* Font weights */
+    --medium: 500;
+    --semi-bold: 600;
+    --bold: 700;
+
     /* Text sizes */ 
     --size-xxs: 11px;
     --size-xs: 12px;
@@ -57,9 +62,10 @@
     --size-xxl: 24px;
 
     /* Radius sizes */ 
-    --radius: 10px;
     --radius-sm: 6px;
+    --radius: 10px;
     --radius-lg: 14px;
+    --radius-xl: 20px;
 }
 
 html {
@@ -118,7 +124,7 @@ body {
 .logo-icon {
     width: 28px;
     height: 28px;
-    border-radius: 7px;
+    border-radius: var(--radius-sm);
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: flex;
     align-items: center;
@@ -126,19 +132,19 @@ body {
     flex-shrink: 0;
 }
 .logo-text {
-    font-weight: 700;
+    font-weight: var(--bold);
     font-size: var(--size-md);
     color: var(--text-1);
     letter-spacing: -0.02em;
 }
 .logo-badge {
     font-size: var(--size-xs);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     letter-spacing: 0.06em;
     background: var(--bg-4);
     color: var(--accent);
     padding: 2px 8px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
 }
 .header-sub {
     font-size: var(--size-md);
@@ -156,7 +162,7 @@ body {
 }
 .hero-eyebrow {
     font-size: var(--size-xs);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--accent);
@@ -164,7 +170,7 @@ body {
 }
 .hero-title {
     font-size: clamp(32px, 5vw, 52px);
-    font-weight: 700;
+    font-weight: var(--bold);
     line-height: 1.1;
     letter-spacing: -0.03em;
     color: var(--text-1);
@@ -229,7 +235,7 @@ body {
     border-radius: var(--radius);
     padding: 14px 24px;
     color: var(--text-1);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     font-size: var(--size-md);
     cursor: pointer;
     font-family: var(--font);
@@ -281,9 +287,9 @@ body {
     display: inline-flex;
     align-items: center;
     font-size: var(--size-sm);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     padding: 5px 14px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1px solid transparent;
     transition: all 0.15s;
 }
@@ -362,7 +368,7 @@ a.feature-pill:hover {
 }
 .progress-title {
     font-size: var(--size-xxl);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     color: var(--text-1);
     margin-bottom: 8px;
 }
@@ -421,7 +427,7 @@ a.feature-pill:hover {
 }
 .summary-count {
     font-size: var(--size-xxl);
-    font-weight: 700;
+    font-weight: var(--bold);
     color: var(--text-1);
     letter-spacing: -0.02em;
 }
@@ -442,7 +448,7 @@ a.feature-pill:hover {
 }
 .avg-num {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: var(--bold);
     font-family: var(--mono);
 }
 .avg-label {
@@ -486,7 +492,7 @@ a.feature-pill:hover {
 .panel-header {
     padding: 11px 16px;
     font-size: var(--size-xs);
-    font-weight: 500;
+    font-weight: var(--medium);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--text-5);
@@ -527,7 +533,7 @@ a.feature-pill:hover {
 }
 .page-item-title {
     font-size: var(--size-sm);
-    font-weight: 500;
+    font-weight: var(--medium);
     color: var(--text-2);
     white-space: nowrap;
     overflow: hidden;
@@ -547,7 +553,7 @@ a.feature-pill:hover {
 }
 .page-item-score {
     font-size: var(--size-md);
-    font-weight: 700;
+    font-weight: var(--bold);
     font-family: var(--mono);
     flex-shrink: 0;
 }
@@ -581,7 +587,7 @@ a.feature-pill:hover {
 }
 .page-detail-title {
     font-size: var(--size-md);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     color: var(--text-1);
     margin-bottom: 3px;
 }
@@ -626,13 +632,13 @@ a.feature-pill:hover {
 
     .score-number {
         font-size: var(--size-xxl);
-        font-weight: 700;
+        font-weight: var(--bold);
         color: var(--text-1);
         font-family: var(--mono);
     }
     .score-text {
         font-size: var(--size-xxs);
-        font-weight: 600;
+        font-weight: var(--semi-bold);
         text-transform: uppercase;
         letter-spacing: 0.08em;
     }
@@ -642,7 +648,7 @@ a.feature-pill:hover {
     color: var(--text-4);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    font-weight: 500;
+    font-weight: var(--medium);
 }
 
 /* GEO summary */
@@ -659,7 +665,7 @@ a.feature-pill:hover {
 .geo-summary strong {
     color: var(--amber);
     font-size: var(--size-xs);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-right: 6px;
@@ -674,7 +680,7 @@ a.feature-pill:hover {
 }
 .panel-title {
     font-size: var(--size-sm);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--accent);
@@ -701,7 +707,7 @@ a.feature-pill:hover {
     align-items: center;
     justify-content: center;
     font-size: var(--size-xs);
-    font-weight: 700;
+    font-weight: var(--bold);
     color: var(--text-1);
     flex-shrink: 0;
 }
@@ -733,9 +739,9 @@ a.feature-pill:hover {
 }
 .sugg-badge {
     font-size: var(--size-xs);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     padding: 2px 8px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1px solid transparent;
     letter-spacing: 0.04em;
 }
@@ -756,7 +762,7 @@ a.feature-pill:hover {
 }
 .sugg-section-title {
     font-size: var(--size-xs);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     letter-spacing: 0.08em;
     color: var(--text-4);
     text-transform: uppercase;
@@ -820,8 +826,8 @@ a.feature-pill:hover {
 .count-pill {
     font-size: var(--size-sm);
     padding: 2px 9px;
-    border-radius: 20px;
-    font-weight: 500;
+    border-radius: var(--radius-xl);
+    font-weight: var(--medium);
 }
 .count-fail {
     background: var(--red-opaque);
@@ -835,7 +841,7 @@ a.feature-pill:hover {
 .findings-section-header {
     padding: 7px 16px 4px;
     font-size: var(--size-xs);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     background: var(--bg-3);
@@ -892,7 +898,7 @@ a.feature-pill:hover {
 }
 .check-label {
     font-size: var(--size-sm);
-    font-weight: 500;
+    font-weight: var(--medium);
     color: var(--text-1);
 }
 .check-label.dim {
@@ -902,8 +908,8 @@ a.feature-pill:hover {
 .check-cat {
     font-size: var(--size-xs);
     padding: 1px 7px;
-    border-radius: 20px;
-    font-weight: 500;
+    border-radius: var(--radius-xl);
+    font-weight: var(--medium);
 }
 .check-weight {
     font-size: var(--size-xs);
@@ -949,7 +955,7 @@ a.feature-pill:hover {
 }
 .signal-value {
     font-size: var(--size-sm);
-    font-weight: 600;
+    font-weight: var(--semi-bold);
     font-family: var(--mono);
 }
 .signal-bar-bg {
@@ -1031,7 +1037,7 @@ a.feature-pill:hover {
     align-items: center;
     gap: 5px;
     font-size: var(--size-xs);
-    font-weight: 500;
+    font-weight: var(--medium);
     color: var(--accent);
     cursor: pointer;
     background: none;
@@ -1073,7 +1079,7 @@ a.feature-pill:hover {
 }
 .fix-how strong {
     color: var(--text-2);
-    font-weight: 500;
+    font-weight: var(--medium);
     display: block;
     margin-bottom: 4px;
     font-size: var(--size-xs);
