@@ -286,12 +286,12 @@ body {
 }
 
 .claude-chip {
-    background: rgba(196,181,253,0.18);
+    background: rgba(196, 181, 253, 0.18);
     color: var(--accent-3);
     border-color: var(--accent-3);
 }
 .openai-chip {
-    background: rgba(110,200,120,0.18);
+    background: rgba(110, 200, 120, 0.18);
     color: #6ec878;
     border-color: #6ec878;
 }
@@ -737,18 +737,18 @@ a.feature-pill:hover {
     letter-spacing: 0.04em;
 }
 .claude-badge {
-    background: rgba(196,181,253,0.12);
-    border-color: rgba(196,181,253,0.35);
+    background: rgba(196, 181, 253, 0.12);
+    border-color: rgba(196, 181, 253, 0.35);
     color: var(--accent-3);
 }
 .openai-badge {
-    background: rgba(110,200,120,0.12);
-    border-color: rgba(110,200,120,0.35);
+    background: rgba(110, 200, 120, 0.12);
+    border-color: rgba(110, 200, 120, 0.35);
     color: #6ec878;
 }
 .high-priority-badge {
-    background: rgba(245,158,11,0.12);
-    border-color: rgba(245,158,11,0.35);
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
     color: var(--amber);
 }
 .sugg-section-title {
