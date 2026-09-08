@@ -1097,6 +1097,8 @@ a.feature-pill:hover {
     line-height: 1.7;
     white-space: pre-wrap;
     margin: 0;
+    max-width: 862px;
+    text-wrap: wrap;
 }
 .copy-btn {
     position: absolute;
