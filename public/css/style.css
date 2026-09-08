@@ -283,28 +283,20 @@ body {
     border-radius: 20px;
     border: 1px solid transparent;
     transition: all 0.15s;
-    opacity: 0.35;
 }
-.provider-toggle input:checked + .provider-chip {
-    opacity: 1;
-}
+
 .claude-chip {
-    background: rgba(196,181,253,0.1);
-    border-color: rgba(196,181,253,0.3);
-    color: var(--accent-3);
-}
-.provider-toggle input:checked + .claude-chip {
     background: rgba(196,181,253,0.18);
+    color: var(--accent-3);
     border-color: var(--accent-3);
 }
 .openai-chip {
-    background: rgba(110,200,120,0.1);
-    border-color: rgba(110,200,120,0.3);
-    color: #6ec878;
-}
-.provider-toggle input:checked + .openai-chip {
     background: rgba(110,200,120,0.18);
+    color: #6ec878;
     border-color: #6ec878;
+}
+.provider-toggle input:not(:checked) + .provider-chip {
+    opacity: 0.4;
 }
 
 /* ── Cancel scan button ───────────────────────────────────────────────────── */
