@@ -578,6 +578,7 @@ a.feature-pill:hover {
     font-size: var(--size-md);
 }
 
+/* ── Scores ───────────────────────────────────────────────────────────────── */
 /* Score cards panel */
 .scores-panel {
     background: var(--bg-2);
@@ -671,7 +672,48 @@ a.feature-pill:hover {
     margin-right: 6px;
 }
 
-/* Suggestions panel */
+/* ── AI section labels (Claude / OpenAI) ──────────────────────────────────── */
+.sugg-section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 6px;
+}
+.sugg-section-label:first-child {
+    margin-top: 0;
+}
+.sugg-badge {
+    font-size: var(--size-xs);
+    font-weight: var(--semi-bold);
+    padding: 2px 8px;
+    border-radius: var(--radius-xl);
+    border: 1px solid transparent;
+    letter-spacing: 0.04em;
+}
+.claude-badge {
+    background: rgba(222, 115, 86, 0.12);
+    border-color: rgba(222, 115, 86, 0.35);
+    color: var(--peach-claude);
+}
+.openai-badge {
+    background: rgba(16, 163, 127, 0.12);
+    border-color: rgba(16, 163, 127, 0.35);
+    color: var(--green-openai);
+}
+.high-priority-badge {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: var(--amber);
+}
+.sugg-section-title {
+    font-size: var(--size-xs);
+    font-weight: var(--semi-bold);
+    letter-spacing: 0.08em;
+    color: var(--text-4);
+    text-transform: uppercase;
+}
+
+/* ── Suggestion panel ─────────────────────────────────────────────────────── */
 .suggestions-panel {
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -727,47 +769,6 @@ a.feature-pill:hover {
     flex-wrap: wrap;
 }
 
-/* AI section labels (Claude / OpenAI) */
-.sugg-section-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 14px 0 6px;
-}
-.sugg-section-label:first-child {
-    margin-top: 0;
-}
-.sugg-badge {
-    font-size: var(--size-xs);
-    font-weight: var(--semi-bold);
-    padding: 2px 8px;
-    border-radius: var(--radius-xl);
-    border: 1px solid transparent;
-    letter-spacing: 0.04em;
-}
-.claude-badge {
-    background: rgba(222, 115, 86, 0.12);
-    border-color: rgba(222, 115, 86, 0.35);
-    color: var(--peach-claude);
-}
-.openai-badge {
-    background: rgba(16, 163, 127, 0.12);
-    border-color: rgba(16, 163, 127, 0.35);
-    color: var(--green-openai);
-}
-.high-priority-badge {
-    background: rgba(245, 158, 11, 0.12);
-    border-color: rgba(245, 158, 11, 0.35);
-    color: var(--amber);
-}
-.sugg-section-title {
-    font-size: var(--size-xs);
-    font-weight: var(--semi-bold);
-    letter-spacing: 0.08em;
-    color: var(--text-4);
-    text-transform: uppercase;
-}
-
 /* Source (where in the code) toggle + drawer */
 .source-toggle {
     display: inline-flex;
@@ -805,7 +806,102 @@ a.feature-pill:hover {
     display: block;
 }
 
-/* Audit findings */
+/* ── How to fix drawer ────────────────────────────────────────────────────── */
+.fix-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: var(--size-xs);
+    font-weight: var(--medium);
+    color: var(--accent);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font);
+    transition: opacity 0.15s;
+}
+.fix-toggle:hover {
+    opacity: 0.75;
+}
+.fix-toggle .arrow {
+    font-size: var(--size-xs);
+    transition: transform 0.2s;
+    display: inline-block;
+}
+.fix-toggle.open .arrow {
+    transform: rotate(90deg);
+}
+
+.fix-drawer {
+    display: none;
+    margin-top: 10px;
+    background: var(--bg-3);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
+    overflow: hidden;
+}
+.fix-drawer.open {
+    display: block;
+}
+
+.fix-how {
+    padding: 10px 14px;
+    font-size: var(--size-sm);
+    color: var(--text-3);
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+}
+.fix-how strong {
+    color: var(--text-2);
+    font-weight: var(--medium);
+    display: block;
+    margin-bottom: 4px;
+    font-size: var(--size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.fix-code-wrap {
+    position: relative;
+}
+.fix-code {
+    padding: 12px 14px;
+    padding-right: 80px;
+    font-family: var(--mono);
+    font-size: var(--size-xs);
+    color: var(--accent-4);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin: 0;
+    max-width: 862px;
+    text-wrap: wrap;
+}
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--bg-4);
+    border: 0.5px solid var(--border-2);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-size: var(--size-xs);
+    color: var(--text-3);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+}
+.copy-btn:hover {
+    background: var(--accent);
+    color: var(--text-1);
+    border-color: var(--accent);
+}
+.copy-btn.copied {
+    background: var(--green);
+    color: var(--text-1);
+    border-color: var(--green);
+}
+
+/* ── Audit findings ───────────────────────────────────────────────────────── */
 .findings-panel {
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -925,7 +1021,7 @@ a.feature-pill:hover {
     opacity: 0.6;
 }
 
-/* AI signals panel */
+/* ── AI GEO signals panel ─────────────────────────────────────────────────── */
 .signals-panel {
     background: var(--bg-2);
     border: 1px solid var(--border);
@@ -969,6 +1065,62 @@ a.feature-pill:hover {
     transition: width 0.6s ease;
 }
 
+/* ── Download dropdown ────────────────────────────────────────────────────── */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown button {
+    padding: 10px 16px;
+    color: var(--text-3);
+    font-size: var(--size-sm);
+    font-family: var(--font);
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: 
+        border-color 0.2s, 
+        color 0.2s, 
+        background-color 0.2s;
+}
+
+.dropdown button:hover,
+.dropdown button:focus {
+    color: var(--text-1);
+    background-color: rgba(99, 102, 241, 0.08);
+    border-color: var(--accent);
+}
+
+.dropdown-btn {
+    background: transparent;
+    border: 1px solid var(--border-2);
+}
+
+.download-btn {
+    display: block;
+    background: var(--bg);
+    border: none;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    flex-direction: column;
+    width: 100%;
+    overflow: auto;
+    z-index: 1;
+    background-color: var(--bg);
+    border: 1px solid var(--border-2);
+    border-top: none;
+    border-color: var(--accent);
+    border-radius: 0px 0px var(--radius) var(--radius);
+}
+
+.show-dropdown-options {
+    display: flex;
+}
+
+/* ── Miscellaneous ────────────────────────────────────────────────────────── */
 /* Error state */
 .page-error {
     padding: 12px 16px;
@@ -1029,154 +1181,4 @@ a.feature-pill:hover {
 }
 .fade-in {
     animation: fadeIn 0.35s ease forwards;
-}
-
-/* ── How to fix drawer ────────────────────────────────────────────────────── */
-.fix-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: var(--size-xs);
-    font-weight: var(--medium);
-    color: var(--accent);
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    font-family: var(--font);
-    transition: opacity 0.15s;
-}
-.fix-toggle:hover {
-    opacity: 0.75;
-}
-.fix-toggle .arrow {
-    font-size: var(--size-xs);
-    transition: transform 0.2s;
-    display: inline-block;
-}
-.fix-toggle.open .arrow {
-    transform: rotate(90deg);
-}
-
-.fix-drawer {
-    display: none;
-    margin-top: 10px;
-    background: var(--bg-3);
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--accent);
-    overflow: hidden;
-}
-.fix-drawer.open {
-    display: block;
-}
-
-.fix-how {
-    padding: 10px 14px;
-    font-size: var(--size-sm);
-    color: var(--text-3);
-    line-height: 1.6;
-    border-bottom: 1px solid var(--border);
-}
-.fix-how strong {
-    color: var(--text-2);
-    font-weight: var(--medium);
-    display: block;
-    margin-bottom: 4px;
-    font-size: var(--size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-.fix-code-wrap {
-    position: relative;
-}
-.fix-code {
-    padding: 12px 14px;
-    padding-right: 80px;
-    font-family: var(--mono);
-    font-size: var(--size-xs);
-    color: var(--accent-4);
-    line-height: 1.7;
-    white-space: pre-wrap;
-    margin: 0;
-    max-width: 862px;
-    text-wrap: wrap;
-}
-.copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--bg-4);
-    border: 0.5px solid var(--border-2);
-    border-radius: var(--radius-sm);
-    padding: 4px 10px;
-    font-size: var(--size-xs);
-    color: var(--text-3);
-    cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.15s;
-}
-.copy-btn:hover {
-    background: var(--accent);
-    color: var(--text-1);
-    border-color: var(--accent);
-}
-.copy-btn.copied {
-    background: var(--green);
-    color: var(--text-1);
-    border-color: var(--green);
-}
-
-/* download button */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown button {
-    padding: 10px 16px;
-    color: var(--text-3);
-    font-size: var(--size-sm);
-    font-family: var(--font);
-    cursor: pointer;
-    border-radius: var(--radius);
-    transition: 
-        border-color 0.2s, 
-        color 0.2s, 
-        background-color 0.2s;
-}
-
-.dropdown button:hover,
-.dropdown button:focus {
-    color: var(--text-1);
-    background-color: rgba(99, 102, 241, 0.08);
-    border-color: var(--accent);
-}
-
-.dropdown-btn {
-    background: transparent;
-    border: 1px solid var(--border-2);
-}
-
-.download-btn {
-    display: block;
-    background: var(--bg);
-    border: none;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    flex-direction: column;
-    width: 100%;
-    overflow: auto;
-    z-index: 1;
-    background-color: var(--bg);
-    border: 1px solid var(--border-2);
-    border-top: none;
-    border-color: var(--accent);
-    border-radius: 0px 0px var(--radius) var(--radius);
-}
-
-.show-dropdown-options {
-    display: flex;
 }
