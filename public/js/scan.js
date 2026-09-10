@@ -1,110 +1,114 @@
 // ── Scan kick-off ─────────────────────────────────────────────────────────────
 async function startScan() {
-	const input = document.getElementById("urlInput");
-	const errorEl = document.getElementById("inputError");
-	let url = input.value.trim();
+    const input = document.getElementById("urlInput");
+    const errorEl = document.getElementById("inputError");
+    let url = input.value.trim();
 
-	errorEl.textContent = "";
-	if (!url) {
-		errorEl.textContent = "Please enter a URL.";
-		return;
-	}
-	if (!url.startsWith("http://") && !url.startsWith("https://"))
-		url = "https://" + url;
+    errorEl.textContent = "";
+    if (!url) {
+        errorEl.textContent = "Please enter a URL.";
+        return;
+    }
+    if (!url.startsWith("http://") && !url.startsWith("https://"))
+        url = "https://" + url;
 
-	try {
-		new URL(url);
-	} catch {
-		errorEl.textContent = "Please enter a valid URL.";
-		return;
-	}
+    try {
+        new URL(url);
+    } catch {
+        errorEl.textContent = "Please enter a valid URL.";
+        return;
+    }
 
-	const providers = [];
-	if (document.getElementById("useClaude")?.checked) providers.push("claude");
-	if (document.getElementById("useOpenAI")?.checked) providers.push("openai");
-	if (providers.length === 0) {
-		errorEl.textContent = "Please select at least one AI provider.";
-		return;
-	}
+    const providers = [];
+    if (document.getElementById("useClaude")?.checked) providers.push("claude");
+    if (document.getElementById("useOpenAI")?.checked) providers.push("openai");
+    if (providers.length === 0) {
+        errorEl.textContent = "Please select at least one AI provider.";
+        return;
+    }
 
-	document.getElementById("scanBtn").disabled = true;
-	showSection("progressSection");
+    document.getElementById("scanBtn").disabled = true;
+    showSection("progressSection");
 
-	try {
-		const res = await fetch("/api/scan", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ url, providers }),
-		});
-		const data = await res.json();
-		if (!res.ok) {
-			showError(data.error || "Scan failed");
-			return;
-		}
-		currentScanId = data.scanId;
-		startPolling();
-	} catch (e) {
-		showError("Could not reach the server.");
-	}
+    try {
+        const res = await fetch("/api/scan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url, providers }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            showError(data.error || "Scan failed");
+            return;
+        }
+        currentScanId = data.scanId;
+        startPolling();
+    } catch (e) {
+        showError("Could not reach the server.");
+		console.log(`Could not reach the server: ${e}`);
+    }
 }
 
 // ── Cancel scan ───────────────────────────────────────────────────────────────
 async function cancelScan() {
-	if (!currentScanId) { resetScan(); return; }
-	try {
-		await fetch(`/api/scan/${currentScanId}/cancel`, { method: "POST" });
-	} catch (e) {
-		// best effort
-	}
-	clearInterval(pollInterval);
-	resetScan();
+    if (!currentScanId) {
+        resetScan();
+        return;
+    }
+    try {
+        await fetch(`/api/scan/${currentScanId}/cancel`, { method: "POST" });
+    } catch (e) {
+        // best effort
+    }
+    clearInterval(pollInterval);
+    resetScan();
 }
 
 // ── Polling ───────────────────────────────────────────────────────────────────
 function startPolling() {
-	if (pollInterval) clearInterval(pollInterval);
-	pollInterval = setInterval(poll, 1500);
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(poll, 1500);
 }
 
 async function poll() {
-	if (!currentScanId) return;
-	try {
-		const res = await fetch("/api/scan/" + currentScanId);
-		const data = await res.json();
-		updateProgress(data);
-		if (data.status === "complete" || data.status === "error") {
-			clearInterval(pollInterval);
-			if (data.status === "complete") showResults(data);
-			else showError(data.errorMessage || "Scan failed");
-		}
-	} catch (e) {
-		console.error("Poll error:", e);
-	}
+    if (!currentScanId) return;
+    try {
+        const res = await fetch("/api/scan/" + currentScanId);
+        const data = await res.json();
+        updateProgress(data);
+        if (data.status === "complete" || data.status === "error") {
+            clearInterval(pollInterval);
+            if (data.status === "complete") showResults(data);
+            else showError(data.errorMessage || "Scan failed");
+        }
+    } catch (e) {
+        console.error("Poll error:", e);
+    }
 }
 
 // ── Progress updates ──────────────────────────────────────────────────────────
 function updateProgress(data) {
-	document.getElementById("progressIcon").textContent =
-		data.scannedPages > 0 ? "⚡" : "🔍";
-	document.getElementById("progressTitle").textContent =
-		data.scannedPages > 0 ? "Analysing content…" : "Discovering pages…";
-	document.getElementById("progressLabel").textContent =
-		data.progressLabel || "Working…";
+    document.getElementById("progressIcon").textContent =
+        data.scannedPages > 0 ? "⚡" : "🔍";
+    document.getElementById("progressTitle").textContent =
+        data.scannedPages > 0 ? "Analysing content…" : "Discovering pages…";
+    document.getElementById("progressLabel").textContent =
+        data.progressLabel || "Working…";
 
-	const pct =
-		data.totalPages > 0
-			? Math.round((data.scannedPages / data.totalPages) * 100)
-			: 5;
-	document.getElementById("progressBar").style.width = pct + "%";
-	const progressGrammarPages = data.scannedPages !== 1 ? " pages " : " page ";
-	document.getElementById("progressCount").textContent =
-		data.scannedPages > 0
-			? data.scannedPages + progressGrammarPages + "scanned"
-			: "";
+    const pct =
+        data.totalPages > 0
+            ? Math.round((data.scannedPages / data.totalPages) * 100)
+            : 5;
+    document.getElementById("progressBar").style.width = pct + "%";
+    const progressGrammarPages = data.scannedPages !== 1 ? " pages " : " page ";
+    document.getElementById("progressCount").textContent =
+        data.scannedPages > 0
+            ? data.scannedPages + progressGrammarPages + "scanned"
+            : "";
 
-	// Stream pages in as they complete
-	if (data.pages && data.pages.length > allPages.length) {
-		allPages = data.pages || [];
-		updateAverages(data);
-	}
+    // Stream pages in as they complete
+    if (data.pages && data.pages.length > allPages.length) {
+        allPages = data.pages || [];
+        updateAverages(data);
+    }
 }
