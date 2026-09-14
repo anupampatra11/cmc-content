@@ -116,6 +116,26 @@ body {
     justify-content: space-between;
     height: 58px;
 }
+.header-inner__navigation {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+.header-inner__navigation a{
+    text-decoration: none;
+    font-weight: var(--medium);
+    font-size: var(--size-md);
+    color: var(--text-2);
+    letter-spacing: -0.02em;
+    padding: 12px;
+    align-self: center;
+}
+.header-inner__navigation a:not(:first-child):hover {
+    background-color: var(--bg-3);
+    border-radius: var(--radius-lg);
+    color: var(--text-1);
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -148,7 +168,7 @@ body {
 }
 .header-sub {
     font-size: var(--size-md);
-    color: var(--text-1);
+    color: var(--text-2);
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
