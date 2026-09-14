@@ -142,8 +142,8 @@ body {
     gap: 10px;
 }
 .logo-icon {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-sm);
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: flex;
