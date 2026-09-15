@@ -1,5 +1,11 @@
 .audit-overview {
     margin: 0px 491px;
+    padding-top: 40px;
+    text-align: center;
+}
+
+.audit-overview__intro h1{
+    margin-bottom: 18px;
 }
 
 .audit-overview__menu {
