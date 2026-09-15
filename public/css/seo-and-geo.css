@@ -1,17 +1,17 @@
-.categories-overview {
+.explanation-page {
     margin: 0px 491px;
     padding-top: 40px;
     text-align: center;
 }
 
-.categories-overview__intro h1{
+.explanation-page__intro h1{
     margin-bottom: 18px;
 }
 
-.categories-overview__menu {
+.explanation-page__menu {
     margin: 24px 0px;
 }
-.categories-overview__menu ul {
+.explanation-page__menu ul {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     list-style: none;
@@ -20,24 +20,24 @@
     background-color: var(--bg-2);
     border-radius: var(--radius-lg);
 }
-.categories-overview__menu a {
+.explanation-page__menu a {
     display: block;
     padding: 8px 18px;
     border-radius: 6px;
     text-decoration: none;
     color: var(--text-2);
 }
-.categories-overview__menu a:hover {
+.explanation-page__menu a:hover {
     background: var(--bg-3);
     color: var(--text-1);
     border-radius: var(--radius-lg);
 }
 
-.categories-overview__categories section {
+.explanation-page__categories section {
     margin: 36px 0px;
     scroll-margin-top: 100px;
 }
-.categories-overview__categories h3 {
+.explanation-page__categories h3 {
     margin-top: 16px;
     text-align: left;
 }
