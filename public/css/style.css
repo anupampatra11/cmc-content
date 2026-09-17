@@ -365,9 +365,8 @@ a.feature-pill:hover {
 }
 .ai-signals-list {
     list-style: none;
-    padding: 0;
-    margin: 0 auto;
-    width: fit-content;
+    padding: 0 114px;
+    margin: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
