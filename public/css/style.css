@@ -353,6 +353,50 @@ a.feature-pill:hover {
     display: inline-block;
 }
 
+/* ── AI Signals ───────────────────────────────────────────────────────────── */
+.ai-signals-section {
+    margin-top: 40px;
+    text-align: center;
+}
+.ai-signals-intro {
+    font-size: var(--size-sm);
+    color: var(--text-3);
+    margin-bottom: 16px;
+}
+.ai-signals-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}
+.ai-signal-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: var(--size-sm);
+}
+.ai-signal-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.ai-signal-title {
+    font-weight: 600;
+    color: var(--text-1);
+    flex-shrink: 0;
+}
+.ai-signal-sep {
+    color: var(--text-4);
+    flex-shrink: 0;
+}
+.ai-signal-desc {
+    color: var(--text-3);
+    line-height: 1.5;
+}
+
 /* ── Progress ─────────────────────────────────────────────────────────────── */
 .progress-section {
     padding: 80px 24px;
